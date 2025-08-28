@@ -2,6 +2,7 @@ package com.uniquindio.archmicroserv.jwtgeneratortaller1.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.MessageDTO;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.Rol;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -19,7 +20,7 @@ import java.io.IOException;
 public class TokenFilter extends OncePerRequestFilter {
 
     private final JWTUtils jwtUtils;
-    private final String ISSUER = "ingesis.uniquindio.edu.co";  
+    private final String ISSUER = "ingesis.uniquindio.edu.co";
 
     @Override
     protected void doFilterInternal(
@@ -38,49 +39,70 @@ public class TokenFilter extends OncePerRequestFilter {
         }
 
         String requestURI = request.getRequestURI();
-
-        // Solo protegemos /saludo
-        if (requestURI.startsWith("/saludo")) {
-            String token = getToken(request);
-            if (token == null) {
-                crearRespuestaError("El token es obligatorio",
-                        HttpServletResponse.SC_UNAUTHORIZED, response);
-                return;
-            }
-
-            try {
-                // Extraer nombre del parámetro
-                String nombreParam = request.getParameter("nombre");
-                if (nombreParam == null || nombreParam.isBlank()) {
-                    crearRespuestaError("Solicitud no válida: El nombre es obligatorio",
-                            HttpServletResponse.SC_BAD_REQUEST, response);
-                    return;
-                }
-
-                boolean validoIssuer = jwtUtils.validarIssuer(token, ISSUER);
-                System.out.println(validoIssuer);
-                if (!validoIssuer) {
-                    crearRespuestaError("El emisor del token no es válido",
-                            HttpServletResponse.SC_FORBIDDEN, response);
-                    return;
-                }
-                // Validar nombre con el token
-                boolean valido = jwtUtils.validarNombre(token, nombreParam);
-                if (!valido) {
-                    crearRespuestaError("El nombre no coincide con el token",
-                            HttpServletResponse.SC_FORBIDDEN, response);
-                    return;
-                }
-
-            } catch (JwtException e) {
-                crearRespuestaError("El token es inválido o ha expirado",
-                        HttpServletResponse.SC_UNAUTHORIZED, response);
-                return;
-            }
+        String token = getToken(request);
+        if (token == null) {
+            crearRespuestaError("El token es obligatorio",
+                    HttpServletResponse.SC_UNAUTHORIZED, response);
+            return;
         }
-
+        boolean error = false;
+        // Solo protegemos /saludo
+        try {
+            if (requestURI.startsWith("/admin")) {
+                error = verificarValidezTokenAdmin(response, token, Rol.ADMIN);
+            }else if (requestURI.startsWith("/usuario")) {
+                error = verificarValidezTokenCliente(response, token);
+            }else{
+                error=false;
+            }
+        } catch (JwtException e) {
+            crearRespuestaError("El token es inválido o ha expirado",
+                    HttpServletResponse.SC_UNAUTHORIZED, response);
+            return;
+        }
+        if (!error) {
+            filterChain.doFilter(request, response);
+        }
         // Si no hubo errores -> continuar
-        filterChain.doFilter(request, response);
+        
+    }
+
+    private boolean verificarValidezTokenAdmin(HttpServletResponse response, String token, Rol rol )
+            throws IOException {
+
+        boolean validoIssuer = jwtUtils.validarIssuer(token, ISSUER);
+        System.out.println(validoIssuer);
+        if (!validoIssuer) {
+            crearRespuestaError("El emisor del token no es válido",
+                    HttpServletResponse.SC_FORBIDDEN, response);
+            return true;
+        }
+        boolean validoRol = jwtUtils.verificarRol(token, rol);
+        if (!validoRol) {
+            crearRespuestaError("El rol del token no es válido",
+                    HttpServletResponse.SC_FORBIDDEN, response);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean verificarValidezTokenCliente( HttpServletResponse response, String token)
+            throws IOException {
+
+        boolean validoIssuer = jwtUtils.validarIssuer(token, ISSUER);
+        System.out.println(validoIssuer);
+        if (!validoIssuer) {
+            crearRespuestaError("El emisor del token no es válido",
+                    HttpServletResponse.SC_FORBIDDEN, response);
+            return true;
+        }
+        boolean validoRol = jwtUtils.verificarRol(token, Rol.CLIENTE);
+        if (!validoRol) {
+            crearRespuestaError("El rol del token no es válido",
+                    HttpServletResponse.SC_FORBIDDEN, response);
+            return true;
+        }
+        return false;
     }
 
     private String getToken(HttpServletRequest req) {

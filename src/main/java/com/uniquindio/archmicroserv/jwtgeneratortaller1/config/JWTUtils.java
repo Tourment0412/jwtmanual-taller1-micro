@@ -8,6 +8,8 @@ import io.jsonwebtoken.security.Keys;
 
 import org.springframework.stereotype.Component;
 
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.Rol;
+
 import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -90,6 +92,24 @@ public class JWTUtils {
     public boolean validarIssuer(String token, String issuer) {
         try {
             return Objects.equals(getIssuer(token).trim(), issuer.trim());
+        } catch (JwtException e) {
+            return false;
+        }
+    }
+    /**
+     * Extrae el rol del token
+     */
+    public String getRol(String token) {
+        return (String) getClaims(token).get("rol");
+    }
+
+
+    /**
+     * Verifica si el rol del token coincide con el esperado
+     */
+    public boolean verificarRol(String token, Rol rol) {
+        try {
+            return Objects.equals(getRol(token).trim(), rol.getNombre().trim());
         } catch (JwtException e) {
             return false;
         }
