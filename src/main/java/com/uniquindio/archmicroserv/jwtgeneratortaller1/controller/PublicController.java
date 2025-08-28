@@ -1,22 +1,22 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.controller;
 
 
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.JWTUtils;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.Usuario;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.security.JWTUtils;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 import java.util.Map;
 
+
 @RestController
+@RequestMapping("/publico")
 public class PublicController {
 
     private final JWTUtils jwtUtils;
@@ -93,10 +93,8 @@ public class PublicController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<List<Usuario>> obtenerUsuarios(@Valid @RequestBody int pagina) {
-        usuarioService.obtenerUsuarios(pagina);
-        return ResponseEntity.ok(usuarioService.obtenerUsuarios(pagina));
-    }
+
+    
+    
 
 }
