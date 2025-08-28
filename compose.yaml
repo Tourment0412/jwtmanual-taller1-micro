@@ -1,1 +1,54 @@
 services:
+  # Base de datos PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: jwt_postgres
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - jwt_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d mydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Aplicación Spring Boot
+  app:
+    build: .
+    container_name: jwt_app
+    ports:
+      - "8080:8080"
+    environment:
+      # Variables de entorno para application.properties
+      DOCKER_COMPOSE_ENABLED: true
+      DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydb
+      DATASOURCE_USERNAME: user
+      DATASOURCE_PASSWORD: pass
+      FLYWAY_ENABLED: false
+      HIBERNATE_SQL_LOG: DEBUG
+      HIBERNATE_BINDER_LOG: TRACE
+      APP_LOG_LEVEL: DEBUG
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - jwt_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  jwt_network:
+    driver: bridge
