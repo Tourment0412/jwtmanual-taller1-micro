@@ -12,12 +12,15 @@ import lombok.*;
 public class Usuario {
 
     @Id
-    @Column(name = "usuario")
+    @Column(name = "usuario", length = 20)
     private String usuario;
-    @Column(name = "correo", unique = true, nullable = false, length = 50)
+    @Column(name = "correo", nullable = false, length = 20)
     private String correo;
-    @Column(name = "clave", nullable = false, length = 50)
+    @Column(name = "clave", nullable = false, length = 20)
     private String clave;
+    @Column(name = "rol", nullable = false, length = 15)
+    private Rol rol;
+
 
     @Embedded
     private CodigoValidacion codigoValidacion;
@@ -27,6 +30,7 @@ public class Usuario {
         this.usuario = usuario;
         this.clave = clave;
         this.correo = correo;
+        this.rol=Rol.CLIENTE;
     }
 
 
