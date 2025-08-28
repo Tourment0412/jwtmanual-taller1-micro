@@ -1,9 +1,11 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.services;
 
 
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.JWTUtils;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.EmailDTO;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.TokenDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.Usuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.repositories.UsuarioRepo;
 import jakarta.validation.Valid;
@@ -15,10 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -26,6 +25,7 @@ public class UsuarioServiceImp {
 
     private final UsuarioRepo usuarioRepo;
     private final EmailServiceImp emailService;
+    private final JWTUtils jWTUtils;
 
     public void registrarUsuario(@Valid DatosUsuario datosUsuario) throws Exception {
         Usuario usuario = new Usuario(
@@ -105,12 +105,26 @@ public class UsuarioServiceImp {
                 usuario.get().getClave().equals(request.getClave());
     }
 
+    public TokenDTO login(DatosUsuario datos) throws Exception {
+         Optional<Usuario> usuarioEncontrado=usuarioRepo.findById(datos.getUsuario());
+         if (usuarioEncontrado.isEmpty()) {
+             throw new Exception("Usuario no encontrado");
+         }
+         Usuario usuario = usuarioEncontrado.get();
+         //TODO encriptar contrasena
+         if (!datos.getClave().equals(usuario.getClave())) {
+             throw new Exception("Contrasena invalida");
+         }
+        Map<String,Object> map = buildClaims(usuario);
+         return new TokenDTO(jWTUtils.generarToken(usuario.getCorreo(), map));
+    }
+
      //TODO añadir el claim del rol cuando se tenga un getRol() en el usuario
     private Map<String, Object> buildClaims(Usuario usuario) {
         return Map.of(
                 "usuario", usuario.getUsuario(),
-                "correo",usuario.getCorreo()
-                // "rol", usuario.getRol()  // Ejemplo de otro claim
+                "correo",usuario.getCorreo(),
+                "rol",usuario.getRol()
         );
     }
 }
