@@ -50,7 +50,7 @@ public class PublicController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody DatosUsuario request) {
-        if (request.getUsuario() == null || request.getUsuario().isBlank() ||
+        if (
                 request.getCorreo() == null || request.getCorreo().isBlank() ||
                 request.getClave() == null || request.getClave().isBlank()) {
             return ResponseEntity
@@ -58,7 +58,8 @@ public class PublicController {
                     .body(Map.of("error", "Atributos de usuario, correo contraseña son obligatorios"));
         }
         if (usuarioService.existeUsuario(request)) {
-            String token = jwtUtils.generarToken(request.getUsuario());
+            //TODO cambiar por servicio de login que genera el token
+            String token = jwtUtils.generarToken(request.getCorreo(), null);
             return ResponseEntity.ok(Map.of("token", token));
         } else {
             return ResponseEntity

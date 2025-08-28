@@ -12,6 +12,7 @@ import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
 
 @Component
@@ -27,12 +28,13 @@ public class JWTUtils {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public String generarToken(String usuario) {
+    public String generarToken(String correo, Map <String, Object > claims) {
         Instant now = Instant.now();
         return Jwts.builder()
-                .subject(usuario)
-                .issuer("ingesis.uniquindio.edu.co") 
-                .issuedAt(Date.from(now)) 
+                .claims(claims)
+                .subject(correo)
+                .issuer("ingesis.uniquindio.edu.co")
+                .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(1, ChronoUnit.HOURS))) // expira en 1h
                 .signWith(key) // firma con clave secreta
                 .compact();

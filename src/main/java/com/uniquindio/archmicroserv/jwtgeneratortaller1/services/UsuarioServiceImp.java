@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
@@ -102,5 +103,13 @@ public class UsuarioServiceImp {
         Optional<Usuario> usuario = usuarioRepo.findById(request.getUsuario());
         return usuario.isPresent() && usuario.get().getCorreo().equals(request.getCorreo()) &&
                 usuario.get().getClave().equals(request.getClave());
+    }
+
+     //TODO añadir el claim del rol cuando se tenga un getRol() en el usuario
+    private Map<String, Object> buildClaims(Usuario usuario) {
+        return Map.of(
+                "usuario", usuario.getUsuario()
+                // "rol", usuario.getRol()  // Ejemplo de otro claim
+        );
     }
 }
