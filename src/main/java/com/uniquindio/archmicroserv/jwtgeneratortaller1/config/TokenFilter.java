@@ -39,6 +39,14 @@ public class TokenFilter extends OncePerRequestFilter {
         }
 
         String requestURI = request.getRequestURI();
+        // Permitir acceso libre a rutas de documentación y swagger
+        if (requestURI.equals("/v3/api-docs.yaml") ||
+            requestURI.startsWith("/v3/api-docs") ||
+            requestURI.startsWith("/swagger-ui")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = getToken(request);
         if (token == null) {
             crearRespuestaError("El token es obligatorio",
@@ -46,14 +54,14 @@ public class TokenFilter extends OncePerRequestFilter {
             return;
         }
         boolean error = false;
-        // Solo protegemos /saludo
+        // Solo protegemos /admin y /usuario
         try {
             if (requestURI.startsWith("/admin")) {
                 error = verificarValidezTokenAdmin(response, token, Rol.ADMIN);
-            }else if (requestURI.startsWith("/usuario")) {
+            } else if (requestURI.startsWith("/usuario")) {
                 error = verificarValidezTokenCliente(response, token);
-            }else{
-                error=false;
+            } else {
+                error = false;
             }
         } catch (JwtException e) {
             crearRespuestaError("El token es inválido o ha expirado",

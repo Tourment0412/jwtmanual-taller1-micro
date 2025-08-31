@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.Usuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
@@ -20,6 +21,7 @@ import lombok.AllArgsConstructor;
 @RestController
 @RequestMapping("/admin")
 @AllArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class Admin {
 
 
