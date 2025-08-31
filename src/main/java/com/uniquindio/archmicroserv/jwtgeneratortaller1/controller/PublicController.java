@@ -76,9 +76,14 @@ public class PublicController {
             usuarioService.enviarCodigoRecuperacion(usuario);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", e.getMessage()));
+            if (e.getMessage().equals("Usuario no existente")) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND) // 404
+                        .body(Map.of("error", e.getMessage()));
+            } else {
+                e.printStackTrace();
+                throw new RuntimeException("Error al recuperar el usuario");
+            }
         }
     }
 
@@ -88,9 +93,15 @@ public class PublicController {
             usuarioService.cambiarClave(datosCambio);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", e.getMessage()));
+            if (e.getMessage().equals("Usuario no encontrado")) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND) // 404
+                        .body(Map.of("error", e.getMessage()));
+            } else {
+                return ResponseEntity
+                        .status(HttpStatus.FORBIDDEN) // 403
+                        .body("Codigo incorrecto");
+            }
         }
     }
 

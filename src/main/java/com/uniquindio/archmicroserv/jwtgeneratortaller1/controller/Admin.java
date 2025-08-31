@@ -1,7 +1,9 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.controller;
 
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,9 +26,18 @@ public class Admin {
     private final UsuarioServiceImp usuarioService;
 
     @GetMapping("/get-all")
-    public ResponseEntity<List<Usuario>> obtenerUsuarios(@Valid @RequestParam(defaultValue = "0") int pagina) {
-        usuarioService.obtenerUsuarios(pagina);
-        return ResponseEntity.ok(usuarioService.obtenerUsuarios(pagina));
+    public ResponseEntity<Object> obtenerUsuarios(@Valid @RequestParam(defaultValue = "0") int pagina) {
+        try {
+            return ResponseEntity.ok(usuarioService.obtenerUsuarios(pagina));
+        } catch (Exception e) {
+            if (e.getMessage().equals("Esa pagina no existe")) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND) // 404
+                        .body(Map.of("error", e.getMessage()));
+            }
+            e.printStackTrace();
+            throw new RuntimeException();
+        }
     }
     
 }

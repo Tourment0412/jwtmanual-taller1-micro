@@ -46,15 +46,22 @@ public class UsuarioServiceImp {
             if (usuario.getCodigoValidacion().getCodigo().equals(datos.codigo())) {
                 usuario.setClave(datos.clave());
             } else {
-                throw new Exception("Codigo incorrecto ");
+                throw new Exception("Codigo incorrecto");
             }
         } else {
             throw new Exception("Usuario no encontrado");
         }
     }
 
-    public void actualizarDatos(DatosUsuario datosUsuario) {
-
+    public void actualizarDatos(DatosUsuario datosUsuario) throws Exception {
+        Optional<Usuario> usuarioObtenido= usuarioRepo.findById(datosUsuario.getUsuario());
+        if (usuarioObtenido.isEmpty()) {
+            throw new Exception("Usuario no encontrado");
+        }
+        Usuario usuario = usuarioObtenido.get();
+        usuario.setCorreo(datosUsuario.getCorreo());
+        usuario.setClave(datosUsuario.getClave());
+        usuarioRepo.save(usuario);
     }
 
     /**
@@ -92,10 +99,13 @@ public class UsuarioServiceImp {
     }
 
 
-    public List<Usuario> obtenerUsuarios(@Valid int pagina) {
+    public List<Usuario> obtenerUsuarios(@Valid int pagina) throws Exception {
         Pageable pageable = PageRequest.of(pagina, 10, Sort.by("usuario"));
         Page<Usuario> usuarios = usuarioRepo.findAll(pageable);
         List<Usuario> listaUsuarios = usuarios.getContent();
+        if (usuarios.getTotalElements() == 0) {
+            throw new Exception("Esa pagina no existe");
+        }
         return listaUsuarios;
     }
 

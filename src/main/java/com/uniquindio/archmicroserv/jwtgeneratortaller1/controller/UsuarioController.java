@@ -25,15 +25,21 @@ public class UsuarioController {
 
     @PutMapping("/actualizar")
     public ResponseEntity<?> actualizarDatos(@Valid @RequestBody DatosUsuario datosUsuario) {
+        if (datosUsuario.getUsuario() == null || datosUsuario.getUsuario().isBlank() ||
+                datosUsuario.getCorreo() == null || datosUsuario.getCorreo().isBlank() ||
+                datosUsuario.getClave() == null || datosUsuario.getClave().isBlank()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("error", "Atributos de usuario, correo contraseña son obligatorios"));
+        }
         try {
-
+            usuarioService.actualizarDatos(datosUsuario);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND) // 404
                     .body(Map.of("error", e.getMessage()));
         }
-        usuarioService.actualizarDatos(datosUsuario);
-        return ResponseEntity.ok().build();
     }
 
 }
