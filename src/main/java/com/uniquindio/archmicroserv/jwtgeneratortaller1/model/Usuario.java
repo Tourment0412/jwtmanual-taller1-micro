@@ -12,13 +12,13 @@ import lombok.*;
 public class Usuario {
 
     @Id
-    @Column(name = "usuario", length = 20)
+    @Column(name = "usuario", length = 255)
     private String usuario;
-    @Column(name = "correo", nullable = false, length = 20)
+    @Column(name = "correo", nullable = false, length = 255)
     private String correo;
-    @Column(name = "clave", nullable = false, length = 20)
+    @Column(name = "clave", nullable = false, length = 255)
     private String clave;
-    @Column(name = "rol", nullable = false, length = 15)
+    @Column(name = "rol", nullable = false, length = 255)
     private Rol rol;
 
 

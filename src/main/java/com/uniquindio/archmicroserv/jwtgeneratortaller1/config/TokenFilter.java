@@ -48,11 +48,12 @@ public class TokenFilter extends OncePerRequestFilter {
         }
 
         String token = getToken(request);
+        /* 
         if (token == null) {
             crearRespuestaError("El token es obligatorio",
                     HttpServletResponse.SC_UNAUTHORIZED, response);
             return;
-        }
+        }*/
         boolean error = false;
         // Solo protegemos /admin y /usuario
         try {
