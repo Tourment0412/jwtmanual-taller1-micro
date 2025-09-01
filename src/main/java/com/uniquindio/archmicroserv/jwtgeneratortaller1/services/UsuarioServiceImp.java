@@ -130,6 +130,9 @@ public class UsuarioServiceImp {
     }
 
     private Map<String, Object> buildClaims(Usuario usuario) {
+        System.out.println("USUARIO: " +usuario.getUsuario());
+        System.out.println("CORREO: "+ usuario.getCorreo());
+        System.out.println("ROL: "+ usuario.getRol());
         return Map.of(
                 "usuario", usuario.getUsuario(),
                 "correo",usuario.getCorreo(),

@@ -5,6 +5,7 @@ import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.JWTUtils;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.MessageDTO;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.TokenDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -26,12 +27,10 @@ import java.util.Map;
 @RequestMapping("/publico")
 public class PublicController {
 
-    private final JWTUtils jwtUtils;
 
     private final UsuarioServiceImp usuarioService;
 
     public PublicController(JWTUtils jwtUtils, UsuarioServiceImp usuarioService) {
-        this.jwtUtils = jwtUtils;
         this.usuarioService = usuarioService;
     }
 
@@ -111,15 +110,16 @@ public class PublicController {
                     .badRequest()
                     .body(new MessageDTO<>(true, "Atributos de usuario, correo contraseña son obligatorios"));
         }
-        if (usuarioService.existeUsuario(request)) {
-            String token = jwtUtils.generarToken(request.getCorreo(), null);
-            //Considerar tener un TokenDTO
-            return ResponseEntity.ok(new MessageDTO<>(false, token));
-        } else {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND) // 404
-                    .body(new MessageDTO<>(true, "No existe el usuario con los datos indicados"));
+        try {
+                TokenDTO tokendto= usuarioService.login(request);
+                return ResponseEntity.ok(new MessageDTO<>(false, tokendto));
+        } catch (Exception e) {
+                // TODO mejorar manejo de errores y añadir otro error
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND) // 404
+                        .body(new MessageDTO<>(true, e.getMessage()));
         }
+        
     }
 
     @Tag(name = "Recuperacion de clave",
