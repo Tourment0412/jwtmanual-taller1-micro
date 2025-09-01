@@ -4,7 +4,14 @@ package com.uniquindio.archmicroserv.jwtgeneratortaller1.controller;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +33,35 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
+    @Tag(name = "Actualizar datos de usuario",
+            description = "Actualiza los datos de la cuenta")
+    @Operation(
+            summary = " Actualizar usuario",
+            description = "Actualiza los datos de un usuario existente"
+    )
+    @Parameter(
+            description = "Nuevos datos a actualizar",
+            required =true,
+            example = "usuario:'Juan',correo:'juanmanuel200413@gmail.com',clave:'1234'"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Usuario actualizado",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Map.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Atributos de usuario, correo contraseña son obligatorios"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuario no encontrado"
+            )
+    })
     @PutMapping("/actualizar")
     public ResponseEntity<?> actualizarDatos(@Valid @RequestBody DatosUsuario datosUsuario) {
         if (datosUsuario.getUsuario() == null || datosUsuario.getUsuario().isBlank() ||

@@ -5,6 +5,13 @@ import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.JWTUtils;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +35,34 @@ public class PublicController {
         this.usuarioService = usuarioService;
     }
 
+    @Tag(name = "Registro de usuarios", description = "Registra un nuevo usuario")
+    @Operation(
+            summary = "Registrar usaurio",
+            description = "Registra un nuevo usuario en la base de datos"
+    )
+    @Parameter(
+            description = "Datos del usuario a registrar",
+            required =true,
+            example = "usuario:'Juan',correo:'juanmanuel200413@gmail.com',clave:'1234'"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Usuario registrado",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Map.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Atributos de usuario, correo contraseña son obligatorios"
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "El usuario ya existe"
+            )
+    })
     @PostMapping("/registro")
     public ResponseEntity<?> registrarUsuario(@Valid @RequestBody DatosUsuario datosUsuario) {
         if (datosUsuario.getUsuario() == null || datosUsuario.getUsuario().isBlank() ||
@@ -48,6 +83,35 @@ public class PublicController {
 
     }
 
+    @Tag(name = "Login de usuario",
+            description = "Permite iniciar sesion al usario")
+    @Operation(
+            summary = "Iniciar sesion",
+            description = "Genera el token de autenticacion para el usuario"
+    )
+    @Parameter(
+            description = "Datos del usuario que va realizar el inicio de sesion",
+            required =true,
+            example = "usuario:'Juan',correo:'juanmanuel200413@gmail.com',clave:'1234'"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Token generado",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Map.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Atributos de usuario, correo contraseña son obligatorios"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "No existe el usuario con los datos indicados"
+            )
+    })
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody DatosUsuario request) {
         if (
@@ -68,8 +132,35 @@ public class PublicController {
         }
     }
 
-
-
+    @Tag(name = "Recuperacion de clave",
+            description = "Hace que se envie un codigo de verificacion al correo de la cuenta")
+    @Operation(
+            summary = "Recuperar clave",
+            description = "Inicia el proceso para poder obtner una nueva cuenta del usuario"
+    )
+    @Parameter(
+            description = "Nombre del usaurio que se quiere recuperar clave",
+            required =true,
+            example = "Juan"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Codigo generado",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Map.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuario no existente"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error al recuperar el usuario"
+            )
+    })
     @PostMapping("/recuperarClave")
     public ResponseEntity<?> recuperarClave(@Valid @RequestBody String usuario) {
         try {
@@ -87,6 +178,36 @@ public class PublicController {
         }
     }
 
+    @Tag(name = "Cambio de clave",
+            description = "Cambia la clave una ")
+    @Operation(
+            summary = "Cambiar contrasena",
+            description = "Mediante el ingreso del codigo recibido por email, permite" +
+                    "establoecer una nueva contrasena"
+    )
+    @Parameter(
+            description = "Datos para cambiar la clave",
+            required =true,
+            example = "usuario:'Juan',clave:'1234',codigo:'435678'"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Clave cambiada",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Map.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuario no encontrado"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Codigo incorrecto"
+            )
+    })
     @PostMapping("/cambiarContraseña")
     public ResponseEntity<?> cambiarClave(@Valid @RequestBody CambioClaveDTO datosCambio) {
         try {
@@ -104,9 +225,5 @@ public class PublicController {
             }
         }
     }
-
-
-    
-    
 
 }
