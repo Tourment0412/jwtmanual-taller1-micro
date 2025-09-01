@@ -30,8 +30,13 @@ public class Usuario {
         this.usuario = usuario;
         this.clave = clave;
         this.correo = correo;
-        this.rol=Rol.CLIENTE;
+        this.rol= Rol.getRolByName("CLIENTE");
     }
+
+
+    public String getRol() {
+        return rol.getNombre();
+    }   
 
 
 
