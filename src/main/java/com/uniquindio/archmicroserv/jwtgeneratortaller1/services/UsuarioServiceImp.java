@@ -2,10 +2,14 @@ package com.uniquindio.archmicroserv.jwtgeneratortaller1.services;
 
 
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.JWTUtils;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.Constants;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.EmailDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.TokenDTO;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.exceptions.CodigoValidacionException;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.exceptions.EmailException;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.exceptions.UsuarioNotFoundException;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.CodigoValidacion;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.Usuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.repositories.UsuarioRepo;
@@ -71,12 +75,11 @@ public class UsuarioServiceImp {
      * @return código aleatorio de 6 digitos
      */
     private String generarCodigoValidacion() {
-        String alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         StringBuilder codigo = new StringBuilder();
         Random random = new Random();
-        for (int i = 0; i < 6; i++) {
-            int idx = random.nextInt(alfabeto.length());
-            codigo.append(alfabeto.charAt(idx));
+        for (int i = 0; i < Constants.CODIGO_VALIDACION_LENGTH; i++) {
+            int idx = random.nextInt(Constants.ALFABETO_CODIGO.length());
+            codigo.append(Constants.ALFABETO_CODIGO.charAt(idx));
         }
         return codigo.toString();
     }
@@ -151,7 +154,7 @@ public class UsuarioServiceImp {
                 System.out.println("=== FIN enviarCodigoRecuperacion - EXITOSO ===");
             } else {
                 System.out.println("Usuario NO encontrado en la base de datos");
-                throw new Exception("Usuario no existente");
+                throw new UsuarioNotFoundException(Constants.MSG_USUARIO_NO_EXISTENTE);
             }
         } catch (Exception e) {
             System.out.println("=== ERROR en enviarCodigoRecuperacion ===");
@@ -163,7 +166,7 @@ public class UsuarioServiceImp {
 
 
     public List<Usuario> obtenerUsuarios(@Valid int pagina) throws Exception {
-        Pageable pageable = PageRequest.of(pagina, 10, Sort.by("usuario"));
+        Pageable pageable = PageRequest.of(pagina, Constants.TAMANO_PAGINA_DEFAULT, Sort.by("usuario"));
         Page<Usuario> usuarios = usuarioRepo.findAll(pageable);
         List<Usuario> listaUsuarios = usuarios.getContent();
         if (usuarios.getTotalElements() == 0) {

@@ -38,6 +38,10 @@ services:
       HIBERNATE_SQL_LOG: DEBUG
       HIBERNATE_BINDER_LOG: TRACE
       APP_LOG_LEVEL: DEBUG
+      # Variables de entorno JWT
+      JWT_SECRET: secretsecretsecretsecretsecretsecretsecretsecret
+      JWT_EXPIRATION: 3600
+      JWT_ISSUER: ingesis.uniquindio.edu.co
     depends_on:
       postgres:
         condition: service_healthy

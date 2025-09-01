@@ -1,6 +1,7 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.Constants;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.MessageDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.Rol;
 
@@ -20,7 +21,7 @@ import java.io.IOException;
 public class TokenFilter extends OncePerRequestFilter {
 
     private final JWTUtils jwtUtils;
-    private final String ISSUER = "ingesis.uniquindio.edu.co";
+    private final String ISSUER = Constants.ISSUER;
     private static final ObjectMapper mapper = new ObjectMapper();
 
     @Override

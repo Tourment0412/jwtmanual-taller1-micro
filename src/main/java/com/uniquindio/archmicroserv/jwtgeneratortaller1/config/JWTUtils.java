@@ -6,9 +6,11 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.Rol;
+import jakarta.annotation.PostConstruct;
 
 import javax.crypto.SecretKey;
 import java.time.Instant;
@@ -20,13 +22,23 @@ import java.util.Objects;
 @Component
 public class JWTUtils {
 
-     private final SecretKey key;
+     private SecretKey key;
 
-    /*Esto toca que cambiarlo con un archivo de variables de entorno o algo ya que en el momemento esta
-    Hardcodeada en el codigo*/
-    private final String secret = "secretsecretsecretsecretsecretsecretsecretsecret";
+    @Value("${jwt.secret}")
+    private String secret;
+    
+    @Value("${jwt.expiration:3600}")
+    private int expirationHours;
+    
+    @Value("${jwt.issuer}")
+    private String issuer;
 
     public JWTUtils() {
+        // Constructor por defecto para compatibilidad
+    }
+    
+    @PostConstruct
+    public void init() {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
@@ -35,9 +47,9 @@ public class JWTUtils {
         return Jwts.builder()
                 .claims(claims)
                 .subject(correo)
-                .issuer("ingesis.uniquindio.edu.co")
+                .issuer(issuer)
                 .issuedAt(Date.from(now))
-                .expiration(Date.from(now.plus(1, ChronoUnit.HOURS))) // expira en 1h
+                .expiration(Date.from(now.plus(expirationHours, ChronoUnit.HOURS))) // expira en horas configurables
                 .signWith(key) // firma con clave secreta
                 .compact();
     }
