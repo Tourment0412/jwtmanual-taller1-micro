@@ -129,7 +129,6 @@ public class UsuarioServiceImp {
          return new TokenDTO(jWTUtils.generarToken(usuario.getCorreo(), map));
     }
 
-     //TODO añadir el claim del rol cuando se tenga un getRol() en el usuario
     private Map<String, Object> buildClaims(Usuario usuario) {
         return Map.of(
                 "usuario", usuario.getUsuario(),
