@@ -30,8 +30,8 @@ public class UsuarioServiceImp {
     public void registrarUsuario(@Valid DatosUsuario datosUsuario) throws Exception {
         Usuario usuario = new Usuario(
                 datosUsuario.getUsuario(),
-                datosUsuario.getCorreo(),
-                datosUsuario.getClave()
+                datosUsuario.getClave(),
+                datosUsuario.getCorreo()
         );
         if (usuarioRepo.findById(datosUsuario.getUsuario()).isPresent()) {
               throw new Exception("El usuario ya existe");

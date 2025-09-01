@@ -3,7 +3,6 @@ package com.uniquindio.archmicroserv.jwtgeneratortaller1.controller;
 import java.util.Map;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -36,11 +35,6 @@ public class Admin {
     @Operation(
             summary = "Obtener usaurios",
             description = "Obtiene una pagina de los usuarios que hay en el sistem"
-    )
-    @Parameter(
-            description = "Numero de pagina",
-            required =true,
-            example = "2"
     )
     @ApiResponses(value = {
             @ApiResponse(

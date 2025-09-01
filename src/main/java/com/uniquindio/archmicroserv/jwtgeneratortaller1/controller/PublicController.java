@@ -6,7 +6,6 @@ import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -39,11 +38,6 @@ public class PublicController {
     @Operation(
             summary = "Registrar usuario",
             description = "Registra un nuevo usuario en la base de datos"
-    )
-    @Parameter(
-            description = "Datos del usuario a registrar",
-            required =true,
-            example = "usuario:'Juan',correo:'juanmanuel200413@gmail.com',clave:'1234'"
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -89,11 +83,6 @@ public class PublicController {
             summary = "Iniciar sesion",
             description = "Genera el token de autenticacion para el usuario"
     )
-    @Parameter(
-            description = "Datos del usuario que va realizar el inicio de sesion",
-            required =true,
-            example = "usuario:'Juan',correo:'juanmanuel200413@gmail.com',clave:'1234'"
-    )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -137,11 +126,6 @@ public class PublicController {
             summary = "Recuperar clave",
             description = "Inicia el proceso para poder obtner una nueva cuenta del usuario"
     )
-    @Parameter(
-            description = "Nombre del usaurio que se quiere recuperar clave",
-            required =true,
-            example = "Juan"
-    )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -183,11 +167,6 @@ public class PublicController {
             summary = "Cambiar contrasena",
             description = "Mediante el ingreso del codigo recibido por email, permite" +
                     "establoecer una nueva contrasena"
-    )
-    @Parameter(
-            description = "Datos para cambiar la clave",
-            required =true,
-            example = "usuario:'Juan',clave:'1234',codigo:'435678'"
     )
     @ApiResponses(value = {
             @ApiResponse(

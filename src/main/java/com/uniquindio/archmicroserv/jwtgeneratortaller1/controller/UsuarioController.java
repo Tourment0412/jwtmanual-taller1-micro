@@ -5,7 +5,6 @@ import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -38,11 +37,6 @@ public class UsuarioController {
     @Operation(
             summary = " Actualizar usuario",
             description = "Actualiza los datos de un usuario existente"
-    )
-    @Parameter(
-            description = "Nuevos datos a actualizar",
-            required =true,
-            example = "usuario:'Juan',correo:'juanmanuel200413@gmail.com',clave:'1234'"
     )
     @ApiResponses(value = {
             @ApiResponse(
