@@ -33,13 +33,13 @@ public class Admin {
 
     @Tag(name = "Obtener Usuarios", description = "Obtiene parte de los usuarios del sistema")
     @Operation(
-            summary = "Obtener usaurios",
-            description = "Obtiene una pagina de los usuarios que hay en el sistem"
+            summary = "Obtener usuarios",
+            description = "Obtiene una pagina de los usuarios que hay en el sistema"
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "",
+                    description = "Lista de usuarios obtenida exitosamente",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = Map.class)
@@ -47,15 +47,20 @@ public class Admin {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = ""
+                    description = "Numero de pagina invalido"
             ),
             @ApiResponse(
-                    responseCode = "400",
-                    description = ""
+                    responseCode = "404",
+                    description = "Pagina no encontrada"
             )
     })
     @GetMapping("/get-all")
     public ResponseEntity<Object> obtenerUsuarios(@Valid @RequestParam(defaultValue = "0") int pagina) {
+        if (pagina < 0) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("error", "Numero de pagina invalido"));
+        }
         try {
             return ResponseEntity.ok(usuarioService.obtenerUsuarios(pagina));
         } catch (Exception e) {
@@ -63,9 +68,11 @@ public class Admin {
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND) // 404
                         .body(Map.of("error", e.getMessage()));
+            } else {
+                return ResponseEntity
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR) // 500
+                        .body(Map.of("error", "Error interno del servidor"));
             }
-            e.printStackTrace();
-            throw new RuntimeException();
         }
     }
     

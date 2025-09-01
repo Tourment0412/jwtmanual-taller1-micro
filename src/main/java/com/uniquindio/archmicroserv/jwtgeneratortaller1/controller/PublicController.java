@@ -42,7 +42,7 @@ public class PublicController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Usuario registrado",
+                    description = "Usuario registrado exitosamente",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = Map.class)
@@ -50,7 +50,7 @@ public class PublicController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Atributos de usuario, correo contraseña son obligatorios"
+                    description = "Atributos de usuario, correo y contraseña son obligatorios"
             ),
             @ApiResponse(
                     responseCode = "409",
@@ -86,7 +86,7 @@ public class PublicController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Token generado",
+                    description = "Token de autenticacion generado exitosamente",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = Map.class)
@@ -94,7 +94,7 @@ public class PublicController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Atributos de usuario, correo contraseña son obligatorios"
+                    description = "Atributos de correo y contraseña son obligatorios"
             ),
             @ApiResponse(
                     responseCode = "404",
@@ -129,34 +129,40 @@ public class PublicController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Codigo generado",
+                    description = "Codigo de verificacion enviado exitosamente",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = Map.class)
                     )
             ),
             @ApiResponse(
-                    responseCode = "404",
-                    description = "Usuario no existente"
+                    responseCode = "400",
+                    description = "El usuario es obligatorio"
             ),
             @ApiResponse(
-                    responseCode = "500",
-                    description = "Error al recuperar el usuario"
+                    responseCode = "404",
+                    description = "Usuario no existente"
             )
     })
     @PostMapping("/recuperarClave")
     public ResponseEntity<?> recuperarClave(@Valid @RequestBody String usuario) {
+        if (usuario == null || usuario.isBlank()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("error", "El usuario es obligatorio"));
+        }
         try {
             usuarioService.enviarCodigoRecuperacion(usuario);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Map.of("message", "Codigo de verificacion enviado exitosamente"));
         } catch (Exception e) {
             if (e.getMessage().equals("Usuario no existente")) {
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND) // 404
                         .body(Map.of("error", e.getMessage()));
             } else {
-                e.printStackTrace();
-                throw new RuntimeException("Error al recuperar el usuario");
+                return ResponseEntity
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR) // 500
+                        .body(Map.of("error", "Error interno del servidor"));
             }
         }
     }
@@ -171,26 +177,33 @@ public class PublicController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Clave cambiada",
+                    description = "Clave cambiada exitosamente",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = Map.class)
                     )
             ),
             @ApiResponse(
-                    responseCode = "404",
-                    description = "Usuario no encontrado"
+                    responseCode = "400",
+                    description = "Datos de cambio de clave son obligatorios"
             ),
             @ApiResponse(
                     responseCode = "403",
-                    description = "Codigo incorrecto"
+                    description = "Codigo de verificacion incorrecto"
             )
     })
     @PostMapping("/cambiarContraseña")
     public ResponseEntity<?> cambiarClave(@Valid @RequestBody CambioClaveDTO datosCambio) {
+        if (datosCambio == null || datosCambio.usuario() == null || datosCambio.usuario().isBlank() ||
+            datosCambio.codigo() == null || datosCambio.codigo().isBlank() ||
+            datosCambio.clave() == null || datosCambio.clave().isBlank()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("error", "Datos de cambio de clave son obligatorios"));
+        }
         try {
             usuarioService.cambiarClave(datosCambio);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Map.of("message", "Clave cambiada exitosamente"));
         } catch (Exception e) {
             if (e.getMessage().equals("Usuario no encontrado")) {
                 return ResponseEntity
@@ -199,7 +212,7 @@ public class PublicController {
             } else {
                 return ResponseEntity
                         .status(HttpStatus.FORBIDDEN) // 403
-                        .body("Codigo incorrecto");
+                        .body(Map.of("error", "Codigo de verificacion incorrecto"));
             }
         }
     }

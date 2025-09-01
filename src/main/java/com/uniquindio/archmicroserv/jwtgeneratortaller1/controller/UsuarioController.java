@@ -33,15 +33,15 @@ public class UsuarioController {
     }
 
     @Tag(name = "Actualizar datos de usuario",
-            description = "Actualiza los datos de la cuenta")
+            description = "Actualiza los datos de la cuenta del usuario autenticado")
     @Operation(
-            summary = " Actualizar usuario",
+            summary = "Actualizar usuario",
             description = "Actualiza los datos de un usuario existente"
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Usuario actualizado",
+                    description = "Usuario actualizado exitosamente",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = Map.class)
@@ -49,7 +49,7 @@ public class UsuarioController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Atributos de usuario, correo contraseña son obligatorios"
+                    description = "Atributos de usuario, correo y contraseña son obligatorios"
             ),
             @ApiResponse(
                     responseCode = "404",
