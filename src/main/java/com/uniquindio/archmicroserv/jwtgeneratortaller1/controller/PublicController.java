@@ -37,7 +37,7 @@ public class PublicController {
 
     @Tag(name = "Registro de usuarios", description = "Registra un nuevo usuario")
     @Operation(
-            summary = "Registrar usaurio",
+            summary = "Registrar usuario",
             description = "Registra un nuevo usuario en la base de datos"
     )
     @Parameter(
@@ -179,7 +179,7 @@ public class PublicController {
     }
 
     @Tag(name = "Cambio de clave",
-            description = "Cambia la clave una ")
+            description = "Cambia la clave un usuario")
     @Operation(
             summary = "Cambiar contrasena",
             description = "Mediante el ingreso del codigo recibido por email, permite" +
