@@ -2,13 +2,14 @@ package com.uniquindio.archmicroserv.jwtgeneratortaller1.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
-@Table(name = "Usuarios")
+@Table(name = "usuarios")
 public class Usuario {
 
     @Id
@@ -18,7 +19,8 @@ public class Usuario {
     private String correo;
     @Column(name = "clave", nullable = false, length = 255)
     private String clave;
-    @Column(name = "rol", nullable = false, length = 255)
+    @Column(name = "rol", nullable = false)
+    @Convert(converter = RolConverter.class)
     private Rol rol;
 
 
@@ -30,7 +32,11 @@ public class Usuario {
         this.usuario = usuario;
         this.clave = clave;
         this.correo = correo;
-        this.rol= Rol.getRolByName("CLIENTE");
+        this.rol = Rol.getRolByName("CLIENTE");
+        this.codigoValidacion = CodigoValidacion.builder()
+                .codigo("")
+                .fechaCreacion(LocalDateTime.now())
+                .build();
     }
 
 

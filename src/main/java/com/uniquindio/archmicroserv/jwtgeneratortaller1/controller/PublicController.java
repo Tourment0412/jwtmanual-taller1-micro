@@ -5,6 +5,7 @@ import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.JWTUtils;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.MessageDTO;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.RecuperarClaveDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.TokenDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
 import io.swagger.v3.oas.annotations.Operation;
@@ -147,14 +148,14 @@ public class PublicController {
             )
     })
     @PostMapping("/recuperarClave")
-    public ResponseEntity<MessageDTO<?>> recuperarClave(@Valid @RequestBody String usuario) {
-        if (usuario == null || usuario.isBlank()) {
+    public ResponseEntity<MessageDTO<?>> recuperarClave(@Valid @RequestBody RecuperarClaveDTO request) {
+        if (request.usuario() == null || request.usuario().isBlank()) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageDTO<>(true, "El usuario es obligatorio"));
         }
         try {
-            usuarioService.enviarCodigoRecuperacion(usuario);
+            usuarioService.enviarCodigoRecuperacion(request.usuario());
             return ResponseEntity.ok(new MessageDTO<>(false, "Codigo de verificacion enviado exitosamente"));
         } catch (Exception e) {
             if (e.getMessage().equals("Usuario no existente")) {

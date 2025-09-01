@@ -6,6 +6,7 @@ import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.EmailDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.TokenDTO;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.CodigoValidacion;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.Usuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.repositories.UsuarioRepo;
 import jakarta.validation.Valid;
@@ -81,20 +82,82 @@ public class UsuarioServiceImp {
     }
 
     public void enviarCodigoRecuperacion(@Valid String nombreUsuario) throws Exception {
-        Optional<Usuario> usuarioEncontrado = usuarioRepo.findById(nombreUsuario);
-        if (usuarioEncontrado.isPresent()) {
-            Usuario usuario = usuarioEncontrado.get();
-            String codigo = generarCodigoValidacion();
-            usuario.getCodigoValidacion().setCodigo(codigo);
-            usuario.getCodigoValidacion().setFechaCreacion(LocalDateTime.now());
-            usuario.setClave(nombreUsuario);
-            emailService.sendEmail(new EmailDTO(
-                    "Codigo de recuperacion de clave",
-                    "El codigo de recuperacion es" + codigo+" tienes hasta 15 minutos",
-                    usuario.getCorreo()
-            ));
-        } else {
-            throw new Exception("Usuario no existente");
+        try {
+            System.out.println("=== INICIO enviarCodigoRecuperacion ===");
+            System.out.println("Buscando usuario: " + nombreUsuario);
+            
+            Optional<Usuario> usuarioEncontrado = usuarioRepo.findById(nombreUsuario);
+            if (usuarioEncontrado.isPresent()) {
+                Usuario usuario = usuarioEncontrado.get();
+                System.out.println("Usuario encontrado: " + usuario.getUsuario() + ", Email: " + usuario.getCorreo());
+                System.out.println("Rol del usuario: " + usuario.getRol());
+                System.out.println("CodigoValidacion inicial: " + usuario.getCodigoValidacion());
+                
+                String codigo = generarCodigoValidacion();
+                System.out.println("Código generado: " + codigo);
+                
+                try {
+                    // Verificar si codigoValidacion existe, si no, crearlo
+                    if (usuario.getCodigoValidacion() == null) {
+                        System.out.println("CodigoValidacion es null, creando uno nuevo...");
+                        usuario.setCodigoValidacion(CodigoValidacion.builder()
+                                .codigo("")
+                                .fechaCreacion(LocalDateTime.now())
+                                .build());
+                    }
+                    
+                    usuario.getCodigoValidacion().setCodigo(codigo);
+                    System.out.println("Código establecido en CodigoValidacion");
+                } catch (Exception e) {
+                    System.out.println("ERROR al establecer código: " + e.getMessage());
+                    e.printStackTrace();
+                    throw e;
+                }
+                
+                try {
+                    usuario.getCodigoValidacion().setFechaCreacion(LocalDateTime.now());
+                    System.out.println("Fecha establecida en CodigoValidacion");
+                } catch (Exception e) {
+                    System.out.println("ERROR al establecer fecha: " + e.getMessage());
+                    e.printStackTrace();
+                    throw e;
+                }
+                
+                try {
+                    // Guardar el usuario con el código de validación actualizado
+                    System.out.println("Intentando guardar usuario...");
+                    usuarioRepo.save(usuario);
+                    System.out.println("Usuario guardado exitosamente con código de validación");
+                } catch (Exception e) {
+                    System.out.println("ERROR al guardar usuario: " + e.getMessage());
+                    e.printStackTrace();
+                    throw e;
+                }
+                
+                try {
+                    System.out.println("Intentando enviar email...");
+                    emailService.sendEmail(new EmailDTO(
+                            "Codigo de recuperacion de clave",
+                            "El codigo de recuperacion es " + codigo + " tienes hasta 15 minutos",
+                            usuario.getCorreo()
+                    ));
+                    System.out.println("Email enviado exitosamente");
+                } catch (Exception e) {
+                    System.out.println("ERROR al enviar email: " + e.getMessage());
+                    e.printStackTrace();
+                    throw e;
+                }
+                
+                System.out.println("=== FIN enviarCodigoRecuperacion - EXITOSO ===");
+            } else {
+                System.out.println("Usuario NO encontrado en la base de datos");
+                throw new Exception("Usuario no existente");
+            }
+        } catch (Exception e) {
+            System.out.println("=== ERROR en enviarCodigoRecuperacion ===");
+            System.out.println("Mensaje de error: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
     }
 

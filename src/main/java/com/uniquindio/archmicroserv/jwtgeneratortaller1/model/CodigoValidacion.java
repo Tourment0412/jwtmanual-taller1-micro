@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Embeddable
 @AttributeOverrides({
-        @AttributeOverride(name = "codigo", column = @Column(name = "codigoRecuperacion")),
-        @AttributeOverride(name = "fechaCreacion", column = @Column(name = "fechaCodigo"))
+        @AttributeOverride(name = "codigo", column = @Column(name = "codigo_recuperacion")),
+        @AttributeOverride(name = "fechaCreacion", column = @Column(name = "fecha_codigo"))
 })
 public class CodigoValidacion {
 
