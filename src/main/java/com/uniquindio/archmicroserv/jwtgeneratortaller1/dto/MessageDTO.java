@@ -1,4 +1,4 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.dto;
 
-public record MessageDTO(boolean error, String mensaje) {
+public record MessageDTO<T>(boolean error, T respuesta) {
 }

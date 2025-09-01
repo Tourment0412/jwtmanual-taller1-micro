@@ -21,6 +21,7 @@ public class TokenFilter extends OncePerRequestFilter {
 
     private final JWTUtils jwtUtils;
     private final String ISSUER = "ingesis.uniquindio.edu.co";
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     protected void doFilterInternal(
@@ -41,19 +42,20 @@ public class TokenFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
         // Permitir acceso libre a rutas de documentación y swagger
         if (requestURI.equals("/v3/api-docs.yaml") ||
-            requestURI.startsWith("/v3/api-docs") ||
-            requestURI.startsWith("/swagger-ui")) {
+                requestURI.startsWith("/v3/api-docs") ||
+                requestURI.startsWith("/swagger-ui")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         String token = getToken(request);
-        /* 
-        if (token == null) {
-            crearRespuestaError("El token es obligatorio",
-                    HttpServletResponse.SC_UNAUTHORIZED, response);
-            return;
-        }*/
+        /*
+         * if (token == null) {
+         * crearRespuestaError("El token es obligatorio",
+         * HttpServletResponse.SC_UNAUTHORIZED, response);
+         * return;
+         * }
+         */
         boolean error = false;
         // Solo protegemos /admin y /usuario
         try {
@@ -73,10 +75,10 @@ public class TokenFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         }
         // Si no hubo errores -> continuar
-        
+
     }
 
-    private boolean verificarValidezTokenAdmin(HttpServletResponse response, String token, Rol rol )
+    private boolean verificarValidezTokenAdmin(HttpServletResponse response, String token, Rol rol)
             throws IOException {
 
         boolean validoIssuer = jwtUtils.validarIssuer(token, ISSUER);
@@ -95,7 +97,7 @@ public class TokenFilter extends OncePerRequestFilter {
         return false;
     }
 
-    private boolean verificarValidezTokenCliente( HttpServletResponse response, String token)
+    private boolean verificarValidezTokenCliente(HttpServletResponse response, String token)
             throws IOException {
 
         boolean validoIssuer = jwtUtils.validarIssuer(token, ISSUER);
@@ -123,11 +125,10 @@ public class TokenFilter extends OncePerRequestFilter {
 
     private void crearRespuestaError(String mensaje, int codigoError, HttpServletResponse response)
             throws IOException {
-        var dto = new MessageDTO(true, mensaje);
+        var dto = new MessageDTO<String>(true, mensaje);
         response.setContentType("application/json");
         response.setStatus(codigoError);
-        response.getWriter().write(new ObjectMapper().writeValueAsString(dto));
+        response.getWriter().write(mapper.writeValueAsString(dto));
         response.getWriter().flush();
-        response.getWriter().close();
     }
 }

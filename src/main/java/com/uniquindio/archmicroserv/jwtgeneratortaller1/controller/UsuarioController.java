@@ -2,6 +2,7 @@ package com.uniquindio.archmicroserv.jwtgeneratortaller1.controller;
 
 
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.MessageDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -57,21 +58,21 @@ public class UsuarioController {
             )
     })
     @PutMapping("/actualizar")
-    public ResponseEntity<?> actualizarDatos(@Valid @RequestBody DatosUsuario datosUsuario) {
+    public ResponseEntity<MessageDTO<?>> actualizarDatos(@Valid @RequestBody DatosUsuario datosUsuario) {
         if (datosUsuario.getUsuario() == null || datosUsuario.getUsuario().isBlank() ||
                 datosUsuario.getCorreo() == null || datosUsuario.getCorreo().isBlank() ||
                 datosUsuario.getClave() == null || datosUsuario.getClave().isBlank()) {
             return ResponseEntity
                     .badRequest()
-                    .body(Map.of("error", "Atributos de usuario, correo contraseña son obligatorios"));
+                    .body(new MessageDTO<>(true, "Atributos de usuario, correo contraseña son obligatorios"));
         }
         try {
             usuarioService.actualizarDatos(datosUsuario);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(new MessageDTO<>(false, "Usuario actualizado exitosamente"));
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND) // 404
-                    .body(Map.of("error", e.getMessage()));
+                    .body(new MessageDTO<>(true, e.getMessage()));
         }
     }
 

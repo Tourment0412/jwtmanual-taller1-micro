@@ -4,6 +4,7 @@ package com.uniquindio.archmicroserv.jwtgeneratortaller1.controller;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.JWTUtils;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.MessageDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -58,21 +59,21 @@ public class PublicController {
             )
     })
     @PostMapping("/registro")
-    public ResponseEntity<?> registrarUsuario(@Valid @RequestBody DatosUsuario datosUsuario) {
+    public ResponseEntity<MessageDTO<?>> registrarUsuario(@Valid @RequestBody DatosUsuario datosUsuario) {
         if (datosUsuario.getUsuario() == null || datosUsuario.getUsuario().isBlank() ||
                 datosUsuario.getCorreo() == null || datosUsuario.getCorreo().isBlank() ||
                 datosUsuario.getClave() == null || datosUsuario.getClave().isBlank()) {
             return ResponseEntity
                     .badRequest()
-                    .body(Map.of("error", "Atributos de usuario, correo contraseña son obligatorios"));
+                    .body(new MessageDTO<>(true, "Atributos de usuario, correo contraseña son obligatorios"));
         }
         try {
             usuarioService.registrarUsuario(datosUsuario);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(new MessageDTO<>(false, "Usuario registrado exitosamente"));
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT) // 409
-                    .body(Map.of("error", e.getMessage()));
+                    .body(new MessageDTO<>(true, e.getMessage()));
         }
 
     }
@@ -102,21 +103,22 @@ public class PublicController {
             )
     })
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody DatosUsuario request) {
+    public ResponseEntity<MessageDTO<?>> login(@Valid @RequestBody DatosUsuario request) {
         if (
                 request.getCorreo() == null || request.getCorreo().isBlank() ||
                 request.getClave() == null || request.getClave().isBlank()) {
             return ResponseEntity
                     .badRequest()
-                    .body(Map.of("error", "Atributos de usuario, correo contraseña son obligatorios"));
+                    .body(new MessageDTO<>(true, "Atributos de usuario, correo contraseña son obligatorios"));
         }
         if (usuarioService.existeUsuario(request)) {
             String token = jwtUtils.generarToken(request.getCorreo(), null);
-            return ResponseEntity.ok(Map.of("token", token));
+            //Considerar tener un TokenDTO
+            return ResponseEntity.ok(new MessageDTO<>(false, token));
         } else {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND) // 404
-                    .body(Map.of("error", "No existe el usuario con los datos indicados"));
+                    .body(new MessageDTO<>(true, "No existe el usuario con los datos indicados"));
         }
     }
 
@@ -145,24 +147,24 @@ public class PublicController {
             )
     })
     @PostMapping("/recuperarClave")
-    public ResponseEntity<?> recuperarClave(@Valid @RequestBody String usuario) {
+    public ResponseEntity<MessageDTO<?>> recuperarClave(@Valid @RequestBody String usuario) {
         if (usuario == null || usuario.isBlank()) {
             return ResponseEntity
                     .badRequest()
-                    .body(Map.of("error", "El usuario es obligatorio"));
+                    .body(new MessageDTO<>(true, "El usuario es obligatorio"));
         }
         try {
             usuarioService.enviarCodigoRecuperacion(usuario);
-            return ResponseEntity.ok(Map.of("message", "Codigo de verificacion enviado exitosamente"));
+            return ResponseEntity.ok(new MessageDTO<>(false, "Codigo de verificacion enviado exitosamente"));
         } catch (Exception e) {
             if (e.getMessage().equals("Usuario no existente")) {
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND) // 404
-                        .body(Map.of("error", e.getMessage()));
+                        .body(new MessageDTO<>(true, e.getMessage()));
             } else {
                 return ResponseEntity
                         .status(HttpStatus.INTERNAL_SERVER_ERROR) // 500
-                        .body(Map.of("error", "Error interno del servidor"));
+                        .body(new MessageDTO<>(true, "Error interno del servidor"));
             }
         }
     }
@@ -193,26 +195,26 @@ public class PublicController {
             )
     })
     @PostMapping("/cambiarContraseña")
-    public ResponseEntity<?> cambiarClave(@Valid @RequestBody CambioClaveDTO datosCambio) {
+    public ResponseEntity<MessageDTO<?>> cambiarClave(@Valid @RequestBody CambioClaveDTO datosCambio) {
         if (datosCambio == null || datosCambio.usuario() == null || datosCambio.usuario().isBlank() ||
             datosCambio.codigo() == null || datosCambio.codigo().isBlank() ||
             datosCambio.clave() == null || datosCambio.clave().isBlank()) {
             return ResponseEntity
                     .badRequest()
-                    .body(Map.of("error", "Datos de cambio de clave son obligatorios"));
+                    .body(new MessageDTO<>(true, "Datos de cambio de clave son obligatorios"));
         }
         try {
             usuarioService.cambiarClave(datosCambio);
-            return ResponseEntity.ok(Map.of("message", "Clave cambiada exitosamente"));
+            return ResponseEntity.ok(new MessageDTO<>(false, "Clave cambiada exitosamente"));
         } catch (Exception e) {
             if (e.getMessage().equals("Usuario no encontrado")) {
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND) // 404
-                        .body(Map.of("error", e.getMessage()));
+                        .body(new MessageDTO<>(true, e.getMessage()));
             } else {
                 return ResponseEntity
                         .status(HttpStatus.FORBIDDEN) // 403
-                        .body(Map.of("error", "Codigo de verificacion incorrecto"));
+                        .body(new MessageDTO<>(true, "Codigo de verificacion incorrecto"));
             }
         }
     }

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.MessageDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -55,23 +56,23 @@ public class Admin {
             )
     })
     @GetMapping("/get-all")
-    public ResponseEntity<Object> obtenerUsuarios(@Valid @RequestParam(defaultValue = "0") int pagina) {
+    public ResponseEntity<MessageDTO<?>> obtenerUsuarios(@Valid @RequestParam(defaultValue = "0") int pagina) {
         if (pagina < 0) {
             return ResponseEntity
                     .badRequest()
-                    .body(Map.of("error", "Numero de pagina invalido"));
+                    .body(new MessageDTO<>(true, "El numero de pagina no puede ser negativo"));
         }
         try {
-            return ResponseEntity.ok(usuarioService.obtenerUsuarios(pagina));
+            return ResponseEntity.ok( new MessageDTO<>(false, usuarioService.obtenerUsuarios(pagina)));
         } catch (Exception e) {
             if (e.getMessage().equals("Esa pagina no existe")) {
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND) // 404
-                        .body(Map.of("error", e.getMessage()));
+                        .body(new MessageDTO<>(true, e.getMessage()));
             } else {
                 return ResponseEntity
                         .status(HttpStatus.INTERNAL_SERVER_ERROR) // 500
-                        .body(Map.of("error", "Error interno del servidor"));
+                        .body(new MessageDTO<>(true, "Error interno del servidor"));
             }
         }
     }
