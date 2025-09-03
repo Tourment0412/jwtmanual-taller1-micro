@@ -115,7 +115,6 @@ public class PublicController {
                 TokenDTO tokendto= usuarioService.login(request);
                 return ResponseEntity.ok(new MessageDTO<>(false, tokendto));
         } catch (Exception e) {
-                // TODO mejorar manejo de errores y añadir otro error
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND) // 404
                         .body(new MessageDTO<>(true, e.getMessage()));

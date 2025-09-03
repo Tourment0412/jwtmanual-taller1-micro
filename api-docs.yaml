@@ -6,14 +6,14 @@ servers:
 - url: http://localhost:8080
   description: Generated server url
 tags:
-- name: Actualizar datos de usuario
-  description: Actualiza los datos de la cuenta
+- name: Cambio de clave
+  description: Cambia la clave un usuario
 - name: Recuperacion de clave
   description: Hace que se envie un codigo de verificacion al correo de la cuenta
 - name: Login de usuario
   description: Permite iniciar sesion al usario
-- name: Cambio de clave
-  description: Cambia la clave un usuario
+- name: Actualizar datos de usuario
+  description: Actualiza los datos de la cuenta del usuario autenticado
 - name: Obtener Usuarios
   description: Obtiene parte de los usuarios del sistema
 - name: Registro de usuarios
@@ -23,14 +23,9 @@ paths:
     put:
       tags:
       - Actualizar datos de usuario
-      summary: ' Actualizar usuario'
+      summary: Actualizar usuario
       description: Actualiza los datos de un usuario existente
       operationId: actualizarDatos
-      parameters:
-      - in: query
-        description: Nuevos datos a actualizar
-        required: true
-        example: "usuario:'Juan',correo:'juanmanuel200413@gmail.com',clave:'1234'"
       requestBody:
         content:
           application/json:
@@ -38,24 +33,24 @@ paths:
               $ref: "#/components/schemas/DatosUsuario"
         required: true
       responses:
-        "400":
-          description: "Atributos de usuario, correo contraseña son obligatorios"
-          content:
-            '*/*':
-              schema:
-                type: object
         "200":
-          description: Usuario actualizado
+          description: Usuario actualizado exitosamente
           content:
             application/json:
               schema:
                 type: string
+        "400":
+          description: "Atributos de usuario, correo y contraseña son obligatorios"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/MessageDTO"
         "404":
           description: Usuario no encontrado
           content:
             '*/*':
               schema:
-                type: object
+                $ref: "#/components/schemas/MessageDTO"
       security:
       - bearerAuth: []
   /publico/registro:
@@ -65,11 +60,6 @@ paths:
       summary: Registrar usuario
       description: Registra un nuevo usuario en la base de datos
       operationId: registrarUsuario
-      parameters:
-      - in: query
-        description: Datos del usuario a registrar
-        required: true
-        example: "usuario:'Juan',correo:'juanmanuel200413@gmail.com',clave:'1234'"
       requestBody:
         content:
           application/json:
@@ -78,23 +68,23 @@ paths:
         required: true
       responses:
         "400":
-          description: "Atributos de usuario, correo contraseña son obligatorios"
+          description: "Atributos de usuario, correo y contraseña son obligatorios"
           content:
             '*/*':
               schema:
-                type: object
-        "200":
-          description: Usuario registrado
-          content:
-            application/json:
-              schema:
-                type: string
+                $ref: "#/components/schemas/MessageDTO"
         "409":
           description: El usuario ya existe
           content:
             '*/*':
               schema:
-                type: object
+                $ref: "#/components/schemas/MessageDTO"
+        "200":
+          description: Usuario registrado exitosamente
+          content:
+            application/json:
+              schema:
+                type: string
   /publico/recuperarClave:
     post:
       tags:
@@ -102,36 +92,31 @@ paths:
       summary: Recuperar clave
       description: Inicia el proceso para poder obtner una nueva cuenta del usuario
       operationId: recuperarClave
-      parameters:
-      - in: query
-        description: Nombre del usaurio que se quiere recuperar clave
-        required: true
-        example: Juan
       requestBody:
         content:
           application/json:
             schema:
-              type: string
+              $ref: "#/components/schemas/RecuperarClaveDTO"
         required: true
       responses:
-        "200":
-          description: Codigo generado
-          content:
-            application/json:
-              schema:
-                type: string
         "404":
           description: Usuario no existente
           content:
             '*/*':
               schema:
-                type: object
-        "500":
-          description: Error al recuperar el usuario
+                $ref: "#/components/schemas/MessageDTO"
+        "400":
+          description: El usuario es obligatorio
           content:
             '*/*':
               schema:
-                type: object
+                $ref: "#/components/schemas/MessageDTO"
+        "200":
+          description: Codigo de verificacion enviado exitosamente
+          content:
+            application/json:
+              schema:
+                type: string
   /publico/login:
     post:
       tags:
@@ -139,11 +124,6 @@ paths:
       summary: Iniciar sesion
       description: Genera el token de autenticacion para el usuario
       operationId: login
-      parameters:
-      - in: query
-        description: Datos del usuario que va realizar el inicio de sesion
-        required: true
-        example: "usuario:'Juan',correo:'juanmanuel200413@gmail.com',clave:'1234'"
       requestBody:
         content:
           application/json:
@@ -156,19 +136,19 @@ paths:
           content:
             '*/*':
               schema:
-                type: object
+                $ref: "#/components/schemas/MessageDTO"
         "200":
-          description: Token generado
+          description: Token de autenticacion generado exitosamente
           content:
             application/json:
               schema:
                 type: string
         "400":
-          description: "Atributos de usuario, correo contraseña son obligatorios"
+          description: Atributos de correo y contraseña son obligatorios
           content:
             '*/*':
               schema:
-                type: object
+                $ref: "#/components/schemas/MessageDTO"
   /publico/cambiarContraseña:
     post:
       tags:
@@ -177,11 +157,6 @@ paths:
       description: "Mediante el ingreso del codigo recibido por email, permiteestabloecer\
         \ una nueva contrasena"
       operationId: cambiarClave
-      parameters:
-      - in: query
-        description: Datos para cambiar la clave
-        required: true
-        example: "usuario:'Juan',clave:'1234',codigo:'435678'"
       requestBody:
         content:
           application/json:
@@ -189,30 +164,30 @@ paths:
               $ref: "#/components/schemas/CambioClaveDTO"
         required: true
       responses:
+        "400":
+          description: Datos de cambio de clave son obligatorios
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/MessageDTO"
+        "403":
+          description: Codigo de verificacion incorrecto
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/MessageDTO"
         "200":
-          description: Clave cambiada
+          description: Clave cambiada exitosamente
           content:
             application/json:
               schema:
                 type: string
-        "404":
-          description: Usuario no encontrado
-          content:
-            '*/*':
-              schema:
-                type: object
-        "403":
-          description: Codigo incorrecto
-          content:
-            '*/*':
-              schema:
-                type: object
   /admin/get-all:
     get:
       tags:
       - Obtener Usuarios
-      summary: Obtener usaurios
-      description: Obtiene una pagina de los usuarios que hay en el sistem
+      summary: Obtener usuarios
+      description: Obtiene una pagina de los usuarios que hay en el sistema
       operationId: obtenerUsuarios
       parameters:
       - name: pagina
@@ -222,23 +197,25 @@ paths:
           type: integer
           format: int32
           default: 0
-      - in: query
-        description: Numero de pagina
-        required: true
-        example: 2
       responses:
         "400":
-          description: Bad Request
+          description: Numero de pagina invalido
           content:
             '*/*':
               schema:
-                type: object
+                $ref: "#/components/schemas/MessageDTO"
         "200":
-          description: OK
+          description: Lista de usuarios obtenida exitosamente
           content:
             application/json:
               schema:
                 type: string
+        "404":
+          description: Pagina no encontrada
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/MessageDTO"
       security:
       - bearerAuth: []
 components:
@@ -255,6 +232,20 @@ components:
         correo:
           type: string
         clave:
+          type: string
+    MessageDTO:
+      type: object
+      properties:
+        error:
+          type: boolean
+        respuesta:
+          type: object
+    RecuperarClaveDTO:
+      required:
+      - usuario
+      type: object
+      properties:
+        usuario:
           type: string
     CambioClaveDTO:
       required:
