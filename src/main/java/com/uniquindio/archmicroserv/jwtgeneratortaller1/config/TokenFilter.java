@@ -1,7 +1,6 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.Constants;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.MessageDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.Rol;
 

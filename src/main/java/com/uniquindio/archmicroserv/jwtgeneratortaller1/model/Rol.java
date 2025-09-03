@@ -1,6 +1,5 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.model;
 
-import jakarta.persistence.*;
 import lombok.Getter;
 
 @Getter

@@ -1,14 +1,11 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.services;
 
-
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.JWTUtils;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.Constants;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.EmailDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.TokenDTO;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.exceptions.CodigoValidacionException;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.exceptions.EmailException;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.exceptions.UsuarioNotFoundException;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.CodigoValidacion;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.Usuario;
@@ -33,13 +30,14 @@ public class UsuarioServiceImp {
     private final JWTUtils jWTUtils;
 
     public void registrarUsuario(@Valid DatosUsuario datosUsuario) throws Exception {
-        Usuario usuario = new Usuario(
-                datosUsuario.getUsuario(),
-                datosUsuario.getClave(),
-                datosUsuario.getCorreo()
-        );
+        Usuario usuario = Usuario.builder()
+                .usuario(datosUsuario.getUsuario())
+                .clave(datosUsuario.getClave())
+                .correo(datosUsuario.getCorreo())
+                .codigoValidacion(new CodigoValidacion())
+                .build();
         if (usuarioRepo.findById(datosUsuario.getUsuario()).isPresent()) {
-              throw new Exception("El usuario ya existe");
+            throw new Exception("El usuario ya existe");
         }
         usuarioRepo.save(usuario);
     }
@@ -50,6 +48,7 @@ public class UsuarioServiceImp {
             Usuario usuario = usuarioEncontrado.get();
             if (usuario.getCodigoValidacion().getCodigo().equals(datos.codigo())) {
                 usuario.setClave(datos.clave());
+                usuarioRepo.save(usuario);
             } else {
                 throw new Exception("Codigo incorrecto");
             }
@@ -59,7 +58,7 @@ public class UsuarioServiceImp {
     }
 
     public void actualizarDatos(DatosUsuario datosUsuario) throws Exception {
-        Optional<Usuario> usuarioObtenido= usuarioRepo.findById(datosUsuario.getUsuario());
+        Optional<Usuario> usuarioObtenido = usuarioRepo.findById(datosUsuario.getUsuario());
         if (usuarioObtenido.isEmpty()) {
             throw new Exception("Usuario no encontrado");
         }
@@ -70,8 +69,10 @@ public class UsuarioServiceImp {
     }
 
     /**
-     * Metodo para generar diferentes cadenas de texto las cuales serán usadas para los códigos de
+     * Metodo para generar diferentes cadenas de texto las cuales serán usadas para
+     * los códigos de
      * recuperación y validacion
+     * 
      * @return código aleatorio de 6 digitos
      */
     private String generarCodigoValidacion() {
@@ -88,35 +89,32 @@ public class UsuarioServiceImp {
         try {
             System.out.println("=== INICIO enviarCodigoRecuperacion ===");
             System.out.println("Buscando usuario: " + nombreUsuario);
-            
+
             Optional<Usuario> usuarioEncontrado = usuarioRepo.findById(nombreUsuario);
             if (usuarioEncontrado.isPresent()) {
                 Usuario usuario = usuarioEncontrado.get();
                 System.out.println("Usuario encontrado: " + usuario.getUsuario() + ", Email: " + usuario.getCorreo());
                 System.out.println("Rol del usuario: " + usuario.getRol());
                 System.out.println("CodigoValidacion inicial: " + usuario.getCodigoValidacion());
-                
+
                 String codigo = generarCodigoValidacion();
                 System.out.println("Código generado: " + codigo);
-                
+
                 try {
                     // Verificar si codigoValidacion existe, si no, crearlo
-                    if (usuario.getCodigoValidacion() == null) {
-                        System.out.println("CodigoValidacion es null, creando uno nuevo...");
-                        usuario.setCodigoValidacion(CodigoValidacion.builder()
-                                .codigo("")
-                                .fechaCreacion(LocalDateTime.now())
-                                .build());
-                    }
-                    
-                    usuario.getCodigoValidacion().setCodigo(codigo);
+
+                    System.out.println("CodigoValidacion es null, creando uno nuevo...");
+                    usuario.setCodigoValidacion(CodigoValidacion.builder()
+                            .codigo(codigo)
+                            .fechaCreacion(LocalDateTime.now())
+                            .build());
                     System.out.println("Código establecido en CodigoValidacion");
                 } catch (Exception e) {
                     System.out.println("ERROR al establecer código: " + e.getMessage());
                     e.printStackTrace();
                     throw e;
                 }
-                
+                /* 
                 try {
                     usuario.getCodigoValidacion().setFechaCreacion(LocalDateTime.now());
                     System.out.println("Fecha establecida en CodigoValidacion");
@@ -124,8 +122,8 @@ public class UsuarioServiceImp {
                     System.out.println("ERROR al establecer fecha: " + e.getMessage());
                     e.printStackTrace();
                     throw e;
-                }
-                
+                }*/
+
                 try {
                     // Guardar el usuario con el código de validación actualizado
                     System.out.println("Intentando guardar usuario...");
@@ -136,21 +134,20 @@ public class UsuarioServiceImp {
                     e.printStackTrace();
                     throw e;
                 }
-                
+
                 try {
                     System.out.println("Intentando enviar email...");
                     emailService.sendEmail(new EmailDTO(
                             "Codigo de recuperacion de clave",
                             "El codigo de recuperacion es " + codigo + " tienes hasta 15 minutos",
-                            usuario.getCorreo()
-                    ));
+                            usuario.getCorreo()));
                     System.out.println("Email enviado exitosamente");
                 } catch (Exception e) {
                     System.out.println("ERROR al enviar email: " + e.getMessage());
                     e.printStackTrace();
                     throw e;
                 }
-                
+
                 System.out.println("=== FIN enviarCodigoRecuperacion - EXITOSO ===");
             } else {
                 System.out.println("Usuario NO encontrado en la base de datos");
@@ -163,7 +160,6 @@ public class UsuarioServiceImp {
             throw e;
         }
     }
-
 
     public List<Usuario> obtenerUsuarios(@Valid int pagina) throws Exception {
         Pageable pageable = PageRequest.of(pagina, Constants.TAMANO_PAGINA_DEFAULT, Sort.by("usuario"));
@@ -182,27 +178,26 @@ public class UsuarioServiceImp {
     }
 
     public TokenDTO login(DatosUsuario datos) throws Exception {
-         Optional<Usuario> usuarioEncontrado=usuarioRepo.findById(datos.getUsuario());
-         if (usuarioEncontrado.isEmpty()) {
-             throw new Exception("Usuario no encontrado");
-         }
-         Usuario usuario = usuarioEncontrado.get();
-         //TODO encriptar contrasena
-         if (!datos.getClave().equals(usuario.getClave())) {
-             throw new Exception("Contrasena invalida");
-         }
-        Map<String,Object> map = buildClaims(usuario);
-         return new TokenDTO(jWTUtils.generarToken(usuario.getCorreo(), map));
+        Optional<Usuario> usuarioEncontrado = usuarioRepo.findById(datos.getUsuario());
+        if (usuarioEncontrado.isEmpty()) {
+            throw new Exception("Usuario no encontrado");
+        }
+        Usuario usuario = usuarioEncontrado.get();
+        // TODO encriptar contrasena
+        if (!datos.getClave().equals(usuario.getClave())) {
+            throw new Exception("Contrasena invalida");
+        }
+        Map<String, Object> map = buildClaims(usuario);
+        return new TokenDTO(jWTUtils.generarToken(usuario.getCorreo(), map));
     }
 
     private Map<String, Object> buildClaims(Usuario usuario) {
-        System.out.println("USUARIO: " +usuario.getUsuario());
-        System.out.println("CORREO: "+ usuario.getCorreo());
-        System.out.println("ROL: "+ usuario.getRol());
+        System.out.println("USUARIO: " + usuario.getUsuario());
+        System.out.println("CORREO: " + usuario.getCorreo());
+        System.out.println("ROL: " + usuario.getRol());
         return Map.of(
                 "usuario", usuario.getUsuario(),
-                "correo",usuario.getCorreo(),
-                "rol",usuario.getRol()
-        );
+                "correo", usuario.getCorreo(),
+                "rol", usuario.getRol());
     }
 }
