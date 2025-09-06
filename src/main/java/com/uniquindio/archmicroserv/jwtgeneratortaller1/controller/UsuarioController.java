@@ -15,7 +15,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,7 +38,7 @@ public class UsuarioController {
             description = "Actualiza los datos de la cuenta del usuario autenticado")
     @Operation(
             summary = "Actualizar usuario",
-            description = "Actualiza los datos de un usuario existente"
+            description = "Actualiza parcialmente los datos de un usuario existente"
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -57,9 +58,9 @@ public class UsuarioController {
                     description = "Usuario no encontrado"
             )
     })
-    @PutMapping("/actualizar")
-    public ResponseEntity<MessageDTO<?>> actualizarDatos(@Valid @RequestBody DatosUsuario datosUsuario) {
-        if (datosUsuario.getUsuario() == null || datosUsuario.getUsuario().isBlank() ||
+    @PatchMapping("/usuarios/{usuario}")
+    public ResponseEntity<MessageDTO<?>> actualizarDatos(@PathVariable String usuario, @Valid @RequestBody DatosUsuario datosUsuario) {
+        if (usuario == null || usuario.isBlank() ||
                 datosUsuario.getCorreo() == null || datosUsuario.getCorreo().isBlank() ||
                 datosUsuario.getClave() == null || datosUsuario.getClave().isBlank()) {
             return ResponseEntity
@@ -67,7 +68,12 @@ public class UsuarioController {
                     .body(new MessageDTO<>(true, "Atributos de usuario, correo contraseña son obligatorios"));
         }
         try {
-            usuarioService.actualizarDatos(datosUsuario);
+            // Crear un nuevo DTO con el usuario del path
+            DatosUsuario datosCompletos = new DatosUsuario();
+            datosCompletos.setUsuario(usuario);
+            datosCompletos.setCorreo(datosUsuario.getCorreo());
+            datosCompletos.setClave(datosUsuario.getClave());
+            usuarioService.actualizarDatos(datosCompletos);
             return ResponseEntity.ok(new MessageDTO<>(false, "Usuario actualizado exitosamente"));
         } catch (Exception e) {
             return ResponseEntity

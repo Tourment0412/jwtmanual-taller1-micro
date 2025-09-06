@@ -5,7 +5,6 @@ import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.JWTUtils;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.MessageDTO;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.RecuperarClaveDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.TokenDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +16,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -122,7 +123,7 @@ public class PublicController {
         
     }
 
-    @Tag(name = "Recuperacion de clave",
+    @Tag(name = "Enviao de codigo de recuperacion",
             description = "Hace que se envie un codigo de verificacion al correo de la cuenta")
     @Operation(
             summary = "Recuperar clave",
@@ -146,15 +147,15 @@ public class PublicController {
                     description = "Usuario no existente"
             )
     })
-    @PostMapping("/recuperarClave")
-    public ResponseEntity<MessageDTO<?>> recuperarClave(@Valid @RequestBody RecuperarClaveDTO request) {
-        if (request.usuario() == null || request.usuario().isBlank()) {
+    @PostMapping("/usuarios/{usuario}/recuperacion")
+    public ResponseEntity<MessageDTO<?>> recuperarClave(@PathVariable String usuario) {
+        if (usuario == null || usuario.isBlank()) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageDTO<>(true, "El usuario es obligatorio"));
         }
         try {
-            usuarioService.enviarCodigoRecuperacion(request.usuario());
+            usuarioService.enviarCodigoRecuperacion(usuario);
             return ResponseEntity.ok(new MessageDTO<>(false, "Codigo de verificacion enviado exitosamente"));
         } catch (Exception e) {
             if (e.getMessage().equals("Usuario no existente")) {
@@ -194,9 +195,9 @@ public class PublicController {
                     description = "Codigo de verificacion incorrecto"
             )
     })
-    @PostMapping("/cambiarContraseña")
-    public ResponseEntity<MessageDTO<?>> cambiarClave(@Valid @RequestBody CambioClaveDTO datosCambio) {
-        if (datosCambio == null || datosCambio.usuario() == null || datosCambio.usuario().isBlank() ||
+    @PatchMapping("/usuarios/{usuario}/contrasena")
+    public ResponseEntity<MessageDTO<?>> cambiarClave(@PathVariable String usuario, @Valid @RequestBody CambioClaveDTO datosCambio) {
+        if (usuario == null || usuario.isBlank() || datosCambio == null || 
             datosCambio.codigo() == null || datosCambio.codigo().isBlank() ||
             datosCambio.clave() == null || datosCambio.clave().isBlank()) {
             return ResponseEntity
@@ -204,7 +205,9 @@ public class PublicController {
                     .body(new MessageDTO<>(true, "Datos de cambio de clave son obligatorios"));
         }
         try {
-            usuarioService.cambiarClave(datosCambio);
+            // Crear un nuevo DTO con el usuario del path
+            CambioClaveDTO datosCompletos = new CambioClaveDTO(usuario, datosCambio.codigo(), datosCambio.clave());
+            usuarioService.cambiarClave(datosCompletos);
             return ResponseEntity.ok(new MessageDTO<>(false, "Clave cambiada exitosamente"));
         } catch (Exception e) {
             if (e.getMessage().equals("Usuario no encontrado")) {

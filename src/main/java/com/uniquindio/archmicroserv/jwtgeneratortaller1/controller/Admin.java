@@ -55,7 +55,7 @@ public class Admin {
                     description = "Pagina no encontrada"
             )
     })
-    @GetMapping("/get-all")
+    @GetMapping("/usuarios")
     public ResponseEntity<MessageDTO<?>> obtenerUsuarios(@Valid @RequestParam(defaultValue = "0") int pagina) {
         if (pagina < 0) {
             return ResponseEntity
