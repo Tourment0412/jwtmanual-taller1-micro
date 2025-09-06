@@ -197,6 +197,7 @@ public class PublicController {
     })
     @PatchMapping("/usuarios/{usuario}/contrasena")
     public ResponseEntity<MessageDTO<?>> cambiarClave(@PathVariable String usuario, @Valid @RequestBody CambioClaveDTO datosCambio) {
+        //TODO será que creo un nuevo DTO sin usuario para enviar los datos y otro con usuario para la gestion en el bacpuesto ya capturo el usuario en el path
         if (usuario == null || usuario.isBlank() || datosCambio == null || 
             datosCambio.codigo() == null || datosCambio.codigo().isBlank() ||
             datosCambio.clave() == null || datosCambio.clave().isBlank()) {
@@ -205,8 +206,8 @@ public class PublicController {
                     .body(new MessageDTO<>(true, "Datos de cambio de clave son obligatorios"));
         }
         try {
-            // Crear un nuevo DTO con el usuario del path
-            CambioClaveDTO datosCompletos = new CambioClaveDTO(usuario, datosCambio.codigo(), datosCambio.clave());
+
+            CambioClaveDTO datosCompletos = new CambioClaveDTO(usuario, datosCambio.clave(), datosCambio.codigo());
             usuarioService.cambiarClave(datosCompletos);
             return ResponseEntity.ok(new MessageDTO<>(false, "Clave cambiada exitosamente"));
         } catch (Exception e) {
