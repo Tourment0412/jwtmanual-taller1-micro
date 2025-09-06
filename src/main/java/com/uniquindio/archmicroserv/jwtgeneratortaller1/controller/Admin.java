@@ -10,7 +10,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,6 +55,10 @@ public class Admin {
             @ApiResponse(
                     responseCode = "404",
                     description = "Pagina no encontrada"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor"
             )
     })
     @GetMapping("/usuarios")
@@ -72,6 +78,53 @@ public class Admin {
             } else {
                 return ResponseEntity
                         .status(HttpStatus.INTERNAL_SERVER_ERROR) // 500
+                        .body(new MessageDTO<>(true, "Error interno del servidor"));
+            }
+        }
+    }
+
+    @Tag(name = "Eliminación de usuario",
+            description = "Elimina un usuario del sistema (solo administradores)")
+    @Operation(
+            summary = "Eliminar usuario",
+            description = "Elimina un usuario existente del sistema. Requiere privilegios de administrador."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Usuario eliminado exitosamente",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Map.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "El usuario es obligatorio"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuario no encontrado"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor"
+            )
+    })
+    @DeleteMapping("/usuarios/{usuario}")
+    public ResponseEntity<MessageDTO<?>> eliminarUsuario(@PathVariable String usuario) {
+        if (usuario == null || usuario.isBlank()) {
+            return ResponseEntity.badRequest().body(new MessageDTO<>(true, "El usuario es obligatorio"));
+        }
+        try {
+            usuarioService.eliminarUsuario(usuario);
+            return ResponseEntity.ok(new MessageDTO<>(false, "Usuario eliminado exitosamente"));
+        } catch (Exception e) {
+            if (e.getMessage().equals("Usuario no encontrado")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new MessageDTO<>(true, e.getMessage()));
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(new MessageDTO<>(true, "Error interno del servidor"));
             }
         }
