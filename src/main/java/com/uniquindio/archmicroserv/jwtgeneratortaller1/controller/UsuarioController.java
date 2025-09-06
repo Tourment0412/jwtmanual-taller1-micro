@@ -72,7 +72,7 @@ public class UsuarioController {
                     .body(new MessageDTO<>(true, "Atributos de usuario, correo contraseña son obligatorios"));
         }
         try {
-            // Crear un nuevo DTO con el usuario del path
+            //TODO actualizar captura de datos, puesto que ya estoy cap
             DatosUsuario datosCompletos = new DatosUsuario();
             datosCompletos.setUsuario(usuario);
             datosCompletos.setCorreo(datosUsuario.getCorreo());

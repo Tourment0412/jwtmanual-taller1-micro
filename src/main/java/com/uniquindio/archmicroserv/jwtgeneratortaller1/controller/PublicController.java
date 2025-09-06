@@ -17,7 +17,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -151,8 +150,9 @@ public class PublicController {
                     description = "Error interno del servidor"
             )
     })
-    @PostMapping("/usuarios/{usuario}/recuperacion-contrasena")
-    public ResponseEntity<MessageDTO<?>> recuperarClave(@PathVariable String usuario) {
+    @PostMapping("/recuperacion-contrasena")
+    public ResponseEntity<MessageDTO<?>> recuperarClave(@RequestBody Map<String, String> request) {
+        String usuario = request.get("usuario");
         if (usuario == null || usuario.isBlank()) {
             return ResponseEntity
                     .badRequest()
@@ -203,9 +203,10 @@ public class PublicController {
                     description = "Usuario no encontrado"
             )
     })
-    @PatchMapping("/usuarios/{usuario}/contrasenas")
-    public ResponseEntity<MessageDTO<?>> cambiarClave(@PathVariable String usuario, @Valid @RequestBody CambioClaveDTO datosCambio) {
-        if (usuario == null || usuario.isBlank() || datosCambio == null || 
+    @PatchMapping("/contrasenas")
+    public ResponseEntity<MessageDTO<?>> cambiarClave(@Valid @RequestBody CambioClaveDTO datosCambio) {
+        if (datosCambio == null || 
+            datosCambio.usuario() == null || datosCambio.usuario().isBlank() ||
             datosCambio.codigo() == null || datosCambio.codigo().isBlank() ||
             datosCambio.clave() == null || datosCambio.clave().isBlank()) {
             return ResponseEntity
@@ -213,7 +214,7 @@ public class PublicController {
                     .body(new MessageDTO<>(true, "Datos de cambio de clave son obligatorios"));
         }
         try {
-            CambioClaveDTO datosCompletos = new CambioClaveDTO(usuario, datosCambio.clave(), datosCambio.codigo());
+            CambioClaveDTO datosCompletos = new CambioClaveDTO(datosCambio.usuario(), datosCambio.clave(), datosCambio.codigo());
             usuarioService.cambiarClave(datosCompletos);
             return ResponseEntity.ok(new MessageDTO<>(false, "Clave cambiada exitosamente"));
         } catch (Exception e) {
