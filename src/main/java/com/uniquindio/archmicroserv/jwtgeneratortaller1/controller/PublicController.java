@@ -26,7 +26,7 @@ import java.util.Map;
 
 
 @RestController
-@RequestMapping("/publico")
+@RequestMapping("/v1/publico")
 public class PublicController {
 
 
@@ -59,7 +59,7 @@ public class PublicController {
                     description = "El usuario ya existe"
             )
     })
-    @PostMapping("/registro")
+    @PostMapping("/registros")
     public ResponseEntity<MessageDTO<?>> registrarUsuario(@Valid @RequestBody DatosUsuario datosUsuario) {
         if (datosUsuario.getUsuario() == null || datosUsuario.getUsuario().isBlank() ||
                 datosUsuario.getCorreo() == null || datosUsuario.getCorreo().isBlank() ||
@@ -103,7 +103,7 @@ public class PublicController {
                     description = "No existe el usuario con los datos indicados"
             )
     })
-    @PostMapping("/login")
+    @PostMapping("/sesiones")
     public ResponseEntity<MessageDTO<?>> login(@Valid @RequestBody DatosUsuario request) {
         if (
                 request.getCorreo() == null || request.getCorreo().isBlank() ||
@@ -151,7 +151,7 @@ public class PublicController {
                     description = "Error interno del servidor"
             )
     })
-    @PostMapping("/usuarios/{usuario}/recuperacion")
+    @PostMapping("/usuarios/{usuario}/recuperacion-contrasena")
     public ResponseEntity<MessageDTO<?>> recuperarClave(@PathVariable String usuario) {
         if (usuario == null || usuario.isBlank()) {
             return ResponseEntity
@@ -203,9 +203,8 @@ public class PublicController {
                     description = "Usuario no encontrado"
             )
     })
-    @PatchMapping("/usuarios/{usuario}/contrasena")
+    @PatchMapping("/usuarios/{usuario}/contrasenas")
     public ResponseEntity<MessageDTO<?>> cambiarClave(@PathVariable String usuario, @Valid @RequestBody CambioClaveDTO datosCambio) {
-        //TODO será que creo un nuevo DTO sin usuario para enviar los datos y otro con usuario para la gestion en el back, puesto ya capturo el usuario en el path
         if (usuario == null || usuario.isBlank() || datosCambio == null || 
             datosCambio.codigo() == null || datosCambio.codigo().isBlank() ||
             datosCambio.clave() == null || datosCambio.clave().isBlank()) {
@@ -214,7 +213,6 @@ public class PublicController {
                     .body(new MessageDTO<>(true, "Datos de cambio de clave son obligatorios"));
         }
         try {
-
             CambioClaveDTO datosCompletos = new CambioClaveDTO(usuario, datosCambio.clave(), datosCambio.codigo());
             usuarioService.cambiarClave(datosCompletos);
             return ResponseEntity.ok(new MessageDTO<>(false, "Clave cambiada exitosamente"));

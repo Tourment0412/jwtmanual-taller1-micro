@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/usuario")
+@RequestMapping("/v1/usuarios")
 @SecurityRequirement(name = "bearerAuth")
 public class UsuarioController {
 
@@ -62,7 +62,7 @@ public class UsuarioController {
                     description = "Error interno del servidor"
             )
     })
-    @PatchMapping("/usuarios/{usuario}")
+    @PatchMapping("/{usuario}")
     public ResponseEntity<MessageDTO<?>> actualizarDatos(@PathVariable String usuario, @Valid @RequestBody DatosUsuario datosUsuario) {
         if (usuario == null || usuario.isBlank() ||
                 datosUsuario.getCorreo() == null || datosUsuario.getCorreo().isBlank() ||

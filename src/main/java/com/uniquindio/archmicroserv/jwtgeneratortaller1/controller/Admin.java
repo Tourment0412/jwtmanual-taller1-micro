@@ -26,7 +26,7 @@ import lombok.AllArgsConstructor;
 
 
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/v1/admin")
 @AllArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
 public class Admin {
