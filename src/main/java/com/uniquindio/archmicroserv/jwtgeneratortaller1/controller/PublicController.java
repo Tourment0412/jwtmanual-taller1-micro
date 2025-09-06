@@ -145,6 +145,10 @@ public class PublicController {
             @ApiResponse(
                     responseCode = "404",
                     description = "Usuario no existente"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor"
             )
     })
     @PostMapping("/usuarios/{usuario}/recuperacion")
@@ -193,11 +197,15 @@ public class PublicController {
             @ApiResponse(
                     responseCode = "403",
                     description = "Codigo de verificacion incorrecto"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuario no encontrado"
             )
     })
     @PatchMapping("/usuarios/{usuario}/contrasena")
     public ResponseEntity<MessageDTO<?>> cambiarClave(@PathVariable String usuario, @Valid @RequestBody CambioClaveDTO datosCambio) {
-        //TODO será que creo un nuevo DTO sin usuario para enviar los datos y otro con usuario para la gestion en el bacpuesto ya capturo el usuario en el path
+        //TODO será que creo un nuevo DTO sin usuario para enviar los datos y otro con usuario para la gestion en el back, puesto ya capturo el usuario en el path
         if (usuario == null || usuario.isBlank() || datosCambio == null || 
             datosCambio.codigo() == null || datosCambio.codigo().isBlank() ||
             datosCambio.clave() == null || datosCambio.clave().isBlank()) {
@@ -222,5 +230,6 @@ public class PublicController {
             }
         }
     }
+
 
 }

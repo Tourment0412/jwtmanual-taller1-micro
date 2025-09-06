@@ -56,6 +56,10 @@ public class UsuarioController {
             @ApiResponse(
                     responseCode = "404",
                     description = "Usuario no encontrado"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor"
             )
     })
     @PatchMapping("/usuarios/{usuario}")
@@ -76,10 +80,17 @@ public class UsuarioController {
             usuarioService.actualizarDatos(datosCompletos);
             return ResponseEntity.ok(new MessageDTO<>(false, "Usuario actualizado exitosamente"));
         } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND) // 404
-                    .body(new MessageDTO<>(true, e.getMessage()));
+            if (e.getMessage().equals("Usuario no encontrado")) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND) // 404
+                        .body(new MessageDTO<>(true, e.getMessage()));
+            } else {
+                return ResponseEntity
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR) // 500
+                        .body(new MessageDTO<>(true, "Error interno del servidor"));
+            }
         }
     }
+
 
 }

@@ -200,4 +200,13 @@ public class UsuarioServiceImp {
                 "correo", usuario.getCorreo(),
                 "rol", usuario.getRol());
     }
+
+    public void eliminarUsuario(String usuario) throws Exception {
+        Optional<Usuario> usuarioEncontrado = usuarioRepo.findById(usuario);
+        if (usuarioEncontrado.isPresent()) {
+            usuarioRepo.delete(usuarioEncontrado.get());
+        } else {
+            throw new Exception("Usuario no encontrado");
+        }
+    }
 }
