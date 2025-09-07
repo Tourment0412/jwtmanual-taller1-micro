@@ -3,6 +3,7 @@ package com.uniquindio.archmicroserv.jwtgeneratortaller1.controller;
 
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.JWTUtils;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveDTO;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveRequestDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.MessageDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.TokenDTO;
@@ -17,6 +18,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +27,7 @@ import java.util.Map;
 
 
 @RestController
-@RequestMapping("/v1/publico")
+@RequestMapping("/v1")
 public class PublicController {
 
 
@@ -150,9 +152,8 @@ public class PublicController {
                     description = "Error interno del servidor"
             )
     })
-    @PostMapping("/recuperacion-contrasena")
-    public ResponseEntity<MessageDTO<?>> recuperarClave(@RequestBody Map<String, String> request) {
-        String usuario = request.get("usuario");
+    @PostMapping("/usuarios/{usuario}/recuperacion-contrasena")
+    public ResponseEntity<MessageDTO<?>> recuperarClave(@PathVariable String usuario) {
         if (usuario == null || usuario.isBlank()) {
             return ResponseEntity
                     .badRequest()
@@ -203,18 +204,15 @@ public class PublicController {
                     description = "Usuario no encontrado"
             )
     })
-    @PatchMapping("/contrasenas")
-    public ResponseEntity<MessageDTO<?>> cambiarClave(@Valid @RequestBody CambioClaveDTO datosCambio) {
-        if (datosCambio == null || 
-            datosCambio.usuario() == null || datosCambio.usuario().isBlank() ||
-            datosCambio.codigo() == null || datosCambio.codigo().isBlank() ||
-            datosCambio.clave() == null || datosCambio.clave().isBlank()) {
+    @PatchMapping("/usuarios/{usuario}/contrasenas")
+    public ResponseEntity<MessageDTO<?>> cambiarClave(@PathVariable String usuario, @Valid @RequestBody CambioClaveRequestDTO datosCambio) {
+        if (usuario == null || usuario.isBlank() || datosCambio == null) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageDTO<>(true, "Datos de cambio de clave son obligatorios"));
         }
         try {
-            CambioClaveDTO datosCompletos = new CambioClaveDTO(datosCambio.usuario(), datosCambio.clave(), datosCambio.codigo());
+            CambioClaveDTO datosCompletos = new CambioClaveDTO(usuario, datosCambio.clave(), datosCambio.codigo());
             usuarioService.cambiarClave(datosCompletos);
             return ResponseEntity.ok(new MessageDTO<>(false, "Clave cambiada exitosamente"));
         } catch (Exception e) {

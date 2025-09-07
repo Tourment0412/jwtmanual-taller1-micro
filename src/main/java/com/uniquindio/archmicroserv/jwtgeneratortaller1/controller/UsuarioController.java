@@ -2,6 +2,7 @@ package com.uniquindio.archmicroserv.jwtgeneratortaller1.controller;
 
 
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.ActualizarUsuarioRequestDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.MessageDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
 
@@ -63,20 +64,17 @@ public class UsuarioController {
             )
     })
     @PatchMapping("/{usuario}")
-    public ResponseEntity<MessageDTO<?>> actualizarDatos(@PathVariable String usuario, @Valid @RequestBody DatosUsuario datosUsuario) {
-        if (usuario == null || usuario.isBlank() ||
-                datosUsuario.getCorreo() == null || datosUsuario.getCorreo().isBlank() ||
-                datosUsuario.getClave() == null || datosUsuario.getClave().isBlank()) {
+    public ResponseEntity<MessageDTO<?>> actualizarDatos(@PathVariable String usuario, @Valid @RequestBody ActualizarUsuarioRequestDTO datosUsuario) {
+        if (usuario == null || usuario.isBlank() || datosUsuario == null) {
             return ResponseEntity
                     .badRequest()
-                    .body(new MessageDTO<>(true, "Atributos de usuario, correo contraseña son obligatorios"));
+                    .body(new MessageDTO<>(true, "Datos de actualización son obligatorios"));
         }
         try {
-            //TODO actualizar captura de datos, puesto que ya estoy cap
             DatosUsuario datosCompletos = new DatosUsuario();
             datosCompletos.setUsuario(usuario);
-            datosCompletos.setCorreo(datosUsuario.getCorreo());
-            datosCompletos.setClave(datosUsuario.getClave());
+            datosCompletos.setCorreo(datosUsuario.correo());
+            datosCompletos.setClave(datosUsuario.clave());
             usuarioService.actualizarDatos(datosCompletos);
             return ResponseEntity.ok(new MessageDTO<>(false, "Usuario actualizado exitosamente"));
         } catch (Exception e) {
