@@ -47,7 +47,10 @@ public class PublicController {
                     description = "Usuario registrado exitosamente",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": false, \"respuesta\": \"Usuario registrado exitosamente\"}"
+                            )
                     )
             ),
             @ApiResponse(
@@ -55,7 +58,10 @@ public class PublicController {
                     description = "Datos de registro inválidos o incompletos",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": true, \"respuesta\": \"Atributos de usuario, correo contraseña son obligatorios\"}"
+                            )
                     )
             ),
             @ApiResponse(
@@ -63,15 +69,21 @@ public class PublicController {
                     description = "El usuario ya existe en el sistema",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": true, \"respuesta\": \"El usuario ya existe en el sistema\"}"
+                            )
                     )
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Error interno del servidor",
+                    description = "Error interno del servidor durante el registro",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": true, \"respuesta\": \"Error interno del servidor\"}"
+                            )
                     )
             )
     })
@@ -109,7 +121,10 @@ public class PublicController {
                     description = "Token de autenticación generado exitosamente",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": false, \"respuesta\": {\"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"}}"
+                            )
                     )
             ),
             @ApiResponse(
@@ -117,7 +132,10 @@ public class PublicController {
                     description = "Credenciales de autenticación incorrectas",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": true, \"respuesta\": \"Credenciales de autenticación incorrectas\"}"
+                            )
                     )
             ),
             @ApiResponse(
@@ -125,15 +143,21 @@ public class PublicController {
                     description = "Usuario no encontrado en el sistema",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": true, \"respuesta\": \"Usuario no encontrado en el sistema\"}"
+                            )
                     )
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Error interno del servidor",
+                    description = "Error interno del servidor durante la autenticación",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": true, \"respuesta\": \"Error interno del servidor durante la autenticación\"}"
+                            )
                     )
             )
     })
@@ -168,7 +192,10 @@ public class PublicController {
                     description = "Código de verificación enviado exitosamente al correo",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": false, \"respuesta\": \"Código de verificación enviado exitosamente al correo\"}"
+                            )
                     )
             ),
             @ApiResponse(
@@ -176,7 +203,10 @@ public class PublicController {
                     description = "Nombre de usuario es obligatorio",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": true, \"respuesta\": \"El usuario es obligatorio\"}"
+                            )
                     )
             ),
             @ApiResponse(
@@ -184,15 +214,21 @@ public class PublicController {
                     description = "Usuario no encontrado en el sistema",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": true, \"respuesta\": \"Usuario no encontrado en el sistema\"}"
+                            )
                     )
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Error interno del servidor",
+                    description = "Error interno del servidor durante el envío del código",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": true, \"respuesta\": \"Error interno del servidor\"}"
+                            )
                     )
             )
     })
@@ -233,7 +269,10 @@ public class PublicController {
                     description = "Contraseña cambiada exitosamente",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": false, \"respuesta\": \"Contraseña cambiada exitosamente\"}"
+                            )
                     )
             ),
             @ApiResponse(
@@ -241,7 +280,10 @@ public class PublicController {
                     description = "Código de verificación incorrecto o expirado",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": true, \"respuesta\": \"Código de verificación incorrecto o expirado\"}"
+                            )
                     )
             ),
             @ApiResponse(
@@ -249,15 +291,21 @@ public class PublicController {
                     description = "Usuario no encontrado en el sistema",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": true, \"respuesta\": \"Usuario no encontrado en el sistema\"}"
+                            )
                     )
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Error interno del servidor",
+                    description = "Error interno del servidor durante el cambio de contraseña",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": true, \"respuesta\": \"Error interno del servidor\"}"
+                            )
                     )
             )
     })

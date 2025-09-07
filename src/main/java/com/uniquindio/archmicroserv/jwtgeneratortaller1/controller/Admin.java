@@ -43,7 +43,10 @@ public class Admin {
                     description = "Lista de usuarios obtenida exitosamente",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": false, \"respuesta\": [{\"usuario\": \"admin\", \"correo\": \"admin@test.com\", \"rol\": \"ADMIN\"}]}"
+                            )
                     )
             ),
             @ApiResponse(
@@ -51,7 +54,50 @@ public class Admin {
                     description = "Número de página inválido o fuera de rango",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": true, \"respuesta\": \"El numero de pagina no puede ser negativo\"}"
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Token de autenticación requerido, expirado o inválido",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = {
+                                    @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                            name = "Token requerido",
+                                            value = "{\"error\": true, \"respuesta\": \"Token de autenticación requerido\"}"
+                                    ),
+                                    @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                            name = "Token expirado",
+                                            value = "{\"error\": true, \"respuesta\": \"El token ha expirado\"}"
+                                    ),
+                                    @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                            name = "Token inválido",
+                                            value = "{\"error\": true, \"respuesta\": \"El token es inválido o malformado\"}"
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Token con emisor o rol inválido",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = {
+                                    @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                            name = "Emisor inválido",
+                                            value = "{\"error\": true, \"respuesta\": \"El emisor del token no es válido\"}"
+                                    ),
+                                    @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                            name = "Rol inválido",
+                                            value = "{\"error\": true, \"respuesta\": \"El rol del token no es válido para esta operación\"}"
+                                    )
+                            }
                     )
             ),
             @ApiResponse(
@@ -59,15 +105,28 @@ public class Admin {
                     description = "Página solicitada no existe o no contiene usuarios",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": true, \"respuesta\": \"Página solicitada no existe o no contiene usuarios\"}"
+                            )
                     )
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Error interno del servidor",
+                    description = "Error interno del servidor durante la consulta o validación del token",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = {
+                                    @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                            name = "Error de validación",
+                                            value = "{\"error\": true, \"respuesta\": \"Error interno del servidor durante la validación del token\"}"
+                                    ),
+                                    @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                            name = "Error de consulta",
+                                            value = "{\"error\": true, \"respuesta\": \"Error interno del servidor\"}"
+                                    )
+                            }
                     )
             )
     })
@@ -100,7 +159,10 @@ public class Admin {
                     description = "Usuario eliminado exitosamente del sistema",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": false, \"respuesta\": \"Usuario eliminado exitosamente del sistema\"}"
+                            )
                     )
             ),
             @ApiResponse(
@@ -108,7 +170,50 @@ public class Admin {
                     description = "Nombre de usuario es obligatorio",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": true, \"respuesta\": \"El usuario es obligatorio\"}"
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Token de autenticación requerido, expirado o inválido",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = {
+                                    @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                            name = "Token requerido",
+                                            value = "{\"error\": true, \"respuesta\": \"Token de autenticación requerido\"}"
+                                    ),
+                                    @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                            name = "Token expirado",
+                                            value = "{\"error\": true, \"respuesta\": \"El token ha expirado\"}"
+                                    ),
+                                    @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                            name = "Token inválido",
+                                            value = "{\"error\": true, \"respuesta\": \"El token es inválido o malformado\"}"
+                                    )
+                            }
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Token con emisor o rol inválido",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = {
+                                    @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                            name = "Emisor inválido",
+                                            value = "{\"error\": true, \"respuesta\": \"El emisor del token no es válido\"}"
+                                    ),
+                                    @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                            name = "Rol inválido",
+                                            value = "{\"error\": true, \"respuesta\": \"El rol del token no es válido para esta operación\"}"
+                                    )
+                            }
                     )
             ),
             @ApiResponse(
@@ -116,15 +221,28 @@ public class Admin {
                     description = "Usuario no encontrado en el sistema",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"error\": true, \"respuesta\": \"Usuario no encontrado en el sistema\"}"
+                            )
                     )
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Error interno del servidor",
+                    description = "Error interno del servidor durante la eliminación o validación del token",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MessageDTO.class)
+                            schema = @Schema(implementation = MessageDTO.class),
+                            examples = {
+                                    @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                            name = "Error de validación",
+                                            value = "{\"error\": true, \"respuesta\": \"Error interno del servidor durante la validación del token\"}"
+                                    ),
+                                    @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                            name = "Error de eliminación",
+                                            value = "{\"error\": true, \"respuesta\": \"Error interno del servidor\"}"
+                                    )
+                            }
                     )
             )
     })
