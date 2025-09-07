@@ -1,6 +1,5 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.controller;
 
-import java.util.Map;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -45,20 +44,32 @@ public class Admin {
                     description = "Lista de usuarios obtenida exitosamente",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = Map.class)
+                            schema = @Schema(implementation = MessageDTO.class)
                     )
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Numero de pagina invalido"
+                    description = "Número de página inválido o fuera de rango",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageDTO.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Pagina no encontrada"
+                    description = "Página solicitada no existe o no contiene usuarios",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageDTO.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Error interno del servidor"
+                    description = "Error interno del servidor",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageDTO.class)
+                    )
             )
     })
     @GetMapping("/usuarios")
@@ -71,15 +82,9 @@ public class Admin {
         try {
             return ResponseEntity.ok( new MessageDTO<>(false, usuarioService.obtenerUsuarios(pagina)));
         } catch (Exception e) {
-            if (e.getMessage().equals("Esa pagina no existe")) {
-                return ResponseEntity
-                        .status(HttpStatus.NOT_FOUND) // 404
-                        .body(new MessageDTO<>(true, e.getMessage()));
-            } else {
-                return ResponseEntity
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR) // 500
-                        .body(new MessageDTO<>(true, "Error interno del servidor"));
-            }
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND) // 404
+                    .body(new MessageDTO<>(true, "Página solicitada no existe o no contiene usuarios"));
         }
     }
 
@@ -92,23 +97,35 @@ public class Admin {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Usuario eliminado exitosamente",
+                    description = "Usuario eliminado exitosamente del sistema",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = Map.class)
+                            schema = @Schema(implementation = MessageDTO.class)
                     )
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "El usuario es obligatorio"
+                    description = "Nombre de usuario es obligatorio",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageDTO.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Usuario no encontrado"
+                    description = "Usuario no encontrado en el sistema",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageDTO.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Error interno del servidor"
+                    description = "Error interno del servidor",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageDTO.class)
+                    )
             )
     })
     @DeleteMapping("/usuarios/{usuario}")
@@ -118,15 +135,10 @@ public class Admin {
         }
         try {
             usuarioService.eliminarUsuario(usuario);
-            return ResponseEntity.ok(new MessageDTO<>(false, "Usuario eliminado exitosamente"));
+            return ResponseEntity.ok(new MessageDTO<>(false, "Usuario eliminado exitosamente del sistema"));
         } catch (Exception e) {
-            if (e.getMessage().equals("Usuario no encontrado")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new MessageDTO<>(true, e.getMessage()));
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(new MessageDTO<>(true, "Error interno del servidor"));
-            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new MessageDTO<>(true, "Usuario no encontrado en el sistema"));
         }
     }
     

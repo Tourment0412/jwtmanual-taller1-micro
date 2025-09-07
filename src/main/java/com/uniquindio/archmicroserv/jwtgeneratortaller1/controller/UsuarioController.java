@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/usuarios")
@@ -47,29 +46,36 @@ public class UsuarioController {
                     description = "Usuario actualizado exitosamente",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = Map.class)
+                            schema = @Schema(implementation = MessageDTO.class)
                     )
             ),
             @ApiResponse(
-                    responseCode = "400",
-                    description = "Atributos de usuario, correo y contraseña son obligatorios"
+                    responseCode = "404",
+                    description = "Usuario no encontrado en el sistema",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageDTO.class)
+                    )
             ),
             @ApiResponse(
-                    responseCode = "404",
-                    description = "Usuario no encontrado"
+                    responseCode = "409",
+                    description = "El correo electrónico ya está en uso por otro usuario",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageDTO.class)
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
-                    description = "Error interno del servidor"
+                    description = "Error interno del servidor",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MessageDTO.class)
+                    )
             )
     })
     @PatchMapping("/{usuario}")
     public ResponseEntity<MessageDTO<?>> actualizarDatos(@PathVariable String usuario, @Valid @RequestBody ActualizarUsuarioRequestDTO datosUsuario) {
-        if (usuario == null || usuario.isBlank() || datosUsuario == null) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageDTO<>(true, "Datos de actualización son obligatorios"));
-        }
         try {
             DatosUsuario datosCompletos = new DatosUsuario();
             datosCompletos.setUsuario(usuario);
@@ -81,11 +87,15 @@ public class UsuarioController {
             if (e.getMessage().equals("Usuario no encontrado")) {
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND) // 404
-                        .body(new MessageDTO<>(true, e.getMessage()));
+                        .body(new MessageDTO<>(true, "Usuario no encontrado en el sistema"));
+            } else if (e.getMessage().equals("El correo electrónico ya está en uso por otro usuario")) {
+                return ResponseEntity
+                        .status(HttpStatus.CONFLICT) // 409
+                        .body(new MessageDTO<>(true, "El correo electrónico ya está en uso por otro usuario"));
             } else {
                 return ResponseEntity
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR) // 500
-                        .body(new MessageDTO<>(true, "Error interno del servidor"));
+                        .status(HttpStatus.NOT_FOUND) // 404 - fallback para otros errores
+                        .body(new MessageDTO<>(true, "Usuario no encontrado en el sistema"));
             }
         }
     }
