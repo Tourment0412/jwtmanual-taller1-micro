@@ -62,10 +62,20 @@ public class TokenFilter extends OncePerRequestFilter {
         try {
             // Rutas que requieren autenticación de administrador
             if (esRutaAdmin(requestURI, method)) {
+                if (token == null || token.trim().isEmpty()) {
+                    crearRespuestaError("Token de autenticación requerido",
+                            HttpServletResponse.SC_UNAUTHORIZED, response);
+                    return;
+                }
                 error = verificarValidezTokenAdmin(response, token, Rol.ADMIN);
             } 
             // Rutas que requieren autenticación de cliente
             else if (esRutaUsuario(requestURI, method)) {
+                if (token == null || token.trim().isEmpty()) {
+                    crearRespuestaError("Token de autenticación requerido",
+                            HttpServletResponse.SC_UNAUTHORIZED, response);
+                    return;
+                }
                 error = verificarValidezTokenCliente(response, token);
             } 
             // Otras rutas (públicas)
@@ -75,6 +85,10 @@ public class TokenFilter extends OncePerRequestFilter {
         } catch (JwtException e) {
             crearRespuestaError("El token es inválido o ha expirado",
                     HttpServletResponse.SC_UNAUTHORIZED, response);
+            return;
+        } catch (Exception e) {
+            crearRespuestaError("Error interno del servidor durante la autenticación",
+                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response);
             return;
         }
         
@@ -87,39 +101,73 @@ public class TokenFilter extends OncePerRequestFilter {
     private boolean verificarValidezTokenAdmin(HttpServletResponse response, String token, Rol rol)
             throws IOException {
 
-        boolean validoIssuer = jwtUtils.validarIssuer(token, ISSUER);
-        System.out.println(validoIssuer);
-        if (!validoIssuer) {
-            crearRespuestaError("El emisor del token no es válido",
-                    HttpServletResponse.SC_FORBIDDEN, response);
+        try {
+            // Verificar si el token está expirado
+            if (jwtUtils.isTokenExpired(token)) {
+                crearRespuestaError("El token ha expirado",
+                        HttpServletResponse.SC_UNAUTHORIZED, response);
+                return true;
+            }
+
+            boolean validoIssuer = jwtUtils.validarIssuer(token, ISSUER);
+            if (!validoIssuer) {
+                crearRespuestaError("El emisor del token no es válido",
+                        HttpServletResponse.SC_FORBIDDEN, response);
+                return true;
+            }
+            
+            boolean validoRol = jwtUtils.verificarRol(token, rol);
+            if (!validoRol) {
+                crearRespuestaError("El rol del token no es válido para esta operación",
+                        HttpServletResponse.SC_FORBIDDEN, response);
+                return true;
+            }
+            return false;
+        } catch (JwtException e) {
+            crearRespuestaError("El token es inválido o malformado",
+                    HttpServletResponse.SC_UNAUTHORIZED, response);
+            return true;
+        } catch (Exception e) {
+            crearRespuestaError("Error interno del servidor durante la validación del token",
+                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response);
             return true;
         }
-        boolean validoRol = jwtUtils.verificarRol(token, rol);
-        if (!validoRol) {
-            crearRespuestaError("El rol del token no es válido",
-                    HttpServletResponse.SC_FORBIDDEN, response);
-            return true;
-        }
-        return false;
     }
 
     private boolean verificarValidezTokenCliente(HttpServletResponse response, String token)
             throws IOException {
 
-        boolean validoIssuer = jwtUtils.validarIssuer(token, ISSUER);
-        System.out.println(validoIssuer);
-        if (!validoIssuer) {
-            crearRespuestaError("El emisor del token no es válido",
-                    HttpServletResponse.SC_FORBIDDEN, response);
+        try {
+            // Verificar si el token está expirado
+            if (jwtUtils.isTokenExpired(token)) {
+                crearRespuestaError("El token ha expirado",
+                        HttpServletResponse.SC_UNAUTHORIZED, response);
+                return true;
+            }
+
+            boolean validoIssuer = jwtUtils.validarIssuer(token, ISSUER);
+            if (!validoIssuer) {
+                crearRespuestaError("El emisor del token no es válido",
+                        HttpServletResponse.SC_FORBIDDEN, response);
+                return true;
+            }
+            
+            boolean validoRol = jwtUtils.verificarRol(token, Rol.CLIENTE);
+            if (!validoRol) {
+                crearRespuestaError("El rol del token no es válido para esta operación",
+                        HttpServletResponse.SC_FORBIDDEN, response);
+                return true;
+            }
+            return false;
+        } catch (JwtException e) {
+            crearRespuestaError("El token es inválido o malformado",
+                    HttpServletResponse.SC_UNAUTHORIZED, response);
+            return true;
+        } catch (Exception e) {
+            crearRespuestaError("Error interno del servidor durante la validación del token",
+                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response);
             return true;
         }
-        boolean validoRol = jwtUtils.verificarRol(token, Rol.CLIENTE);
-        if (!validoRol) {
-            crearRespuestaError("El rol del token no es válido",
-                    HttpServletResponse.SC_FORBIDDEN, response);
-            return true;
-        }
-        return false;
     }
 
     private String getToken(HttpServletRequest req) {

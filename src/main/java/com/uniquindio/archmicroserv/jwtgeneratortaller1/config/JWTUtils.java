@@ -67,7 +67,10 @@ public class JWTUtils {
     /**
      * Obtiene el payload (Claims) del token
      */
-    private Claims getClaims(String token) {
+    private Claims getClaims(String token) throws JwtException {
+        if (token == null || token.trim().isEmpty()) {
+            throw new JwtException("Token no puede ser nulo o vacío");
+        }
         String clean = cleanToken(token);
         JwtParser parser = Jwts.parser().verifyWith(key).build();
         return parser.parseSignedClaims(clean).getPayload();
@@ -76,7 +79,7 @@ public class JWTUtils {
     /**
      * Extrae el subject (username) del token
      */
-    public String getSubject(String token) {
+    public String getSubject(String token) throws JwtException {
         return getClaims(token).getSubject();
     }
 
@@ -94,7 +97,7 @@ public class JWTUtils {
     /**
      * Extrae el issuer del token
      */
-    public String getIssuer(String token) {
+    public String getIssuer(String token) throws JwtException {
         return getClaims(token).getIssuer();
     }
 
@@ -111,7 +114,7 @@ public class JWTUtils {
     /**
      * Extrae el rol del token
      */
-    public String getRol(String token) {
+    public String getRol(String token) throws JwtException {
         return (String) getClaims(token).get("rol");
     }
 
