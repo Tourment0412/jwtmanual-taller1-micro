@@ -47,6 +47,9 @@ public class UsuarioServiceImp {
         if (usuarioEncontrado.isPresent()) {
             Usuario usuario = usuarioEncontrado.get();
             if (usuario.getCodigoValidacion().getCodigo().equals(datos.codigo())) {
+                if(usuario.getCodigoValidacion().getFechaCreacion().plusMinutes(15).isBefore(LocalDateTime.now())){
+                    throw new Exception("El codigo ha expirado");
+                }
                 usuario.setClave(datos.clave());
                 usuarioRepo.save(usuario);
             } else {
