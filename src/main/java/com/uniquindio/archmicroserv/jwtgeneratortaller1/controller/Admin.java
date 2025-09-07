@@ -27,7 +27,6 @@ import lombok.AllArgsConstructor;
 @RestController
 @RequestMapping("/v1")
 @AllArgsConstructor
-@SecurityRequirement(name = "bearerAuth")
 public class Admin {
 
 
@@ -73,6 +72,7 @@ public class Admin {
             )
     })
     @GetMapping("/usuarios")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<MessageDTO<?>> obtenerUsuarios(@Valid @RequestParam(defaultValue = "0") int pagina) {
         if (pagina < 0) {
             return ResponseEntity
@@ -129,6 +129,7 @@ public class Admin {
             )
     })
     @DeleteMapping("/usuarios/{usuario}")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<MessageDTO<?>> eliminarUsuario(@PathVariable String usuario) {
         if (usuario == null || usuario.isBlank()) {
             return ResponseEntity.badRequest().body(new MessageDTO<>(true, "El usuario es obligatorio"));

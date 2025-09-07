@@ -196,6 +196,13 @@ public class PublicController {
                     )
             )
     })
+    /* 
+     * Este endopoint tambien se propone trabajarse como perteneciente al usuario
+     * debido a que codigos no es n recursos separado del usuario en la base de datos
+     * Este en el momento se esta trabajando como un atributo del usuario. Por lo tanto
+     * es recomendado tratarlo como un subrecurso del usuario
+     * POST /v1/usuarios/{usuario}/codigos
+    */
     @PostMapping("/codigos/{usuario}")
     public ResponseEntity<MessageDTO<?>> recuperarClave(@PathVariable String usuario) {
         if (usuario == null || usuario.isBlank()) {

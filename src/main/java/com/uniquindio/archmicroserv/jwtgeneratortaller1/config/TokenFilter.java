@@ -40,6 +40,8 @@ public class TokenFilter extends OncePerRequestFilter {
         }
 
         String requestURI = request.getRequestURI();
+        String method = request.getMethod();
+        
         // Permitir acceso libre a rutas de documentación y swagger
         if (requestURI.equals("/v3/api-docs.yaml") ||
                 requestURI.startsWith("/v3/api-docs") ||
@@ -48,22 +50,26 @@ public class TokenFilter extends OncePerRequestFilter {
             return;
         }
 
+        // Rutas públicas que no requieren autenticación
+        if (esRutaPublica(requestURI, method)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = getToken(request);
-        /*
-         * if (token == null) {
-         * crearRespuestaError("El token es obligatorio",
-         * HttpServletResponse.SC_UNAUTHORIZED, response);
-         * return;
-         * }
-         */
         boolean error = false;
-        // Solo protegemos /admin y /usuario
+        
         try {
-            if (requestURI.startsWith("/admin")) {
+            // Rutas que requieren autenticación de administrador
+            if (esRutaAdmin(requestURI, method)) {
                 error = verificarValidezTokenAdmin(response, token, Rol.ADMIN);
-            } else if (requestURI.startsWith("/usuario")) {
+            } 
+            // Rutas que requieren autenticación de cliente
+            else if (esRutaUsuario(requestURI, method)) {
                 error = verificarValidezTokenCliente(response, token);
-            } else {
+            } 
+            // Otras rutas (públicas)
+            else {
                 error = false;
             }
         } catch (JwtException e) {
@@ -71,10 +77,10 @@ public class TokenFilter extends OncePerRequestFilter {
                     HttpServletResponse.SC_UNAUTHORIZED, response);
             return;
         }
+        
         if (!error) {
             filterChain.doFilter(request, response);
         }
-        // Si no hubo errores -> continuar
 
     }
 
@@ -130,5 +136,31 @@ public class TokenFilter extends OncePerRequestFilter {
         response.setStatus(codigoError);
         response.getWriter().write(mapper.writeValueAsString(dto));
         response.getWriter().flush();
+    }
+
+    /**
+     * Identifica si una ruta es pública (no requiere autenticación)
+     */
+    private boolean esRutaPublica(String requestURI, String method) {
+        return (requestURI.equals("/v1/usuarios") && "POST".equals(method)) || // POST /v1/usuarios (registro)
+               (requestURI.equals("/v1/sesiones") && "POST".equals(method)) || // POST /v1/sesiones (login)
+               (requestURI.startsWith("/v1/codigos/") && "POST".equals(method)) || // POST /v1/codigos/{usuario} (recuperar clave)
+               (requestURI.startsWith("/v1/usuarios/") && requestURI.endsWith("/contrasena") && "PATCH".equals(method)); // PATCH /v1/usuarios/{usuario}/contrasena (cambiar clave)
+    }
+
+    /**
+     * Identifica si una ruta requiere autenticación de administrador
+     */
+    private boolean esRutaAdmin(String requestURI, String method) {
+        return (requestURI.equals("/v1/usuarios") && "GET".equals(method)) || // GET /v1/usuarios (obtener usuarios)
+               (requestURI.startsWith("/v1/usuarios/") && "DELETE".equals(method)); // DELETE /v1/usuarios/{usuario} (eliminar usuario)
+    }
+
+    /**
+     * Identifica si una ruta requiere autenticación de cliente/usuario
+     */
+    private boolean esRutaUsuario(String requestURI, String method) {
+        return requestURI.startsWith("/v1/usuarios/") && "PATCH".equals(method) && 
+               !requestURI.endsWith("/contrasena"); // PATCH /v1/usuarios/{usuario} (actualizar usuario)
     }
 }

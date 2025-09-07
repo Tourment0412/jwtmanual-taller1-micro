@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/usuarios")
-@SecurityRequirement(name = "bearerAuth")
+
 public class UsuarioController {
 
     private final UsuarioServiceImp usuarioService;
@@ -75,6 +75,7 @@ public class UsuarioController {
             )
     })
     @PatchMapping("/{usuario}")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<MessageDTO<?>> actualizarDatos(@PathVariable String usuario, @Valid @RequestBody ActualizarUsuarioRequestDTO datosUsuario) {
         try {
             DatosUsuario datosCompletos = new DatosUsuario();
