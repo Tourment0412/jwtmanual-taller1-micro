@@ -75,7 +75,7 @@ public class PublicController {
                     )
             )
     })
-    @PostMapping("/registros")
+    @PostMapping("/usuarios")
     public ResponseEntity<MessageDTO<?>> registrarUsuario(@Valid @RequestBody DatosUsuario datosUsuario) {
         if (datosUsuario.getUsuario() == null || datosUsuario.getUsuario().isBlank() ||
                 datosUsuario.getCorreo() == null || datosUsuario.getCorreo().isBlank() ||
@@ -196,7 +196,7 @@ public class PublicController {
                     )
             )
     })
-    @PostMapping("/usuarios/{usuario}/recuperacion-contrasena")
+    @PostMapping("/codigos/{usuario}")
     public ResponseEntity<MessageDTO<?>> recuperarClave(@PathVariable String usuario) {
         if (usuario == null || usuario.isBlank()) {
             return ResponseEntity
@@ -254,7 +254,7 @@ public class PublicController {
                     )
             )
     })
-    @PatchMapping("/usuarios/{usuario}/contrasenas")
+    @PatchMapping("/usuarios/{usuario}/contrasena")
     public ResponseEntity<MessageDTO<?>> cambiarClave(@PathVariable String usuario, @Valid @RequestBody CambioClaveRequestDTO datosCambio) {
         if (usuario == null || usuario.isBlank() || datosCambio == null) {
             return ResponseEntity
