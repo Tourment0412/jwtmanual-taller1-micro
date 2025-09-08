@@ -5,6 +5,7 @@ import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.JWTUtils;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveRequestDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.EnviarCodigoUsuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.MessageDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.TokenDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
@@ -180,7 +181,7 @@ public class PublicController {
         
     }
 
-    @Tag(name = "Enviao de codigo de recuperacion",
+    @Tag(name = "Envio de codigo de recuperacion",
             description = "Hace que se envie un codigo de verificacion al correo de la cuenta")
     @Operation(
             summary = "Recuperar clave",
@@ -239,15 +240,15 @@ public class PublicController {
      * es recomendado tratarlo como un subrecurso del usuario
      * POST /v1/usuarios/{usuario}/codigos
     */
-    @PostMapping("/codigos/{usuario}")
-    public ResponseEntity<MessageDTO<?>> recuperarClave(@PathVariable String usuario) {
-        if (usuario == null || usuario.isBlank()) {
+    @PostMapping("/codigos")
+    public ResponseEntity<MessageDTO<?>> recuperarClave(@RequestBody EnviarCodigoUsuario enviarCodigoUsuario) {
+        if (enviarCodigoUsuario.usuario() == null || enviarCodigoUsuario.usuario().isBlank()) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageDTO<>(true, "El usuario es obligatorio"));
         }
         try {
-            usuarioService.enviarCodigoRecuperacion(usuario);
+            usuarioService.enviarCodigoRecuperacion(enviarCodigoUsuario.usuario());
             return ResponseEntity.ok(new MessageDTO<>(false, "Código de verificación enviado exitosamente al correo"));
         } catch (Exception e) {
             return ResponseEntity
