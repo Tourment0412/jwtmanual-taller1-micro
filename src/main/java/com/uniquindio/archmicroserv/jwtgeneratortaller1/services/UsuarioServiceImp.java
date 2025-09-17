@@ -66,6 +66,22 @@ public class UsuarioServiceImp {
                 }
                 usuario.setClave(datos.clave());
                 usuarioRepo.save(usuario);
+
+                /*
+                Se ha creado el evento de dominio para la acción de cambio de clave
+                que será publicado en RabbitMQ para que otros microservicios puedan
+                reaccionar a este evento.
+                 */
+                EventoDominio evento = EventoDominio.of(
+                        TipoAccion.AUTENTICACION_CLAVES,
+                        Map.of(
+                                "usuario", usuario.getUsuario(),
+                                "correo", usuario.getCorreo(),
+                                "fechaCambio", LocalDateTime.now().toString()
+                        )
+                );
+
+                eventoPublisher.publicar(evento);
             } else {
                 throw new Exception("Codigo incorrecto");
             }
