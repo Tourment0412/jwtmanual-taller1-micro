@@ -152,6 +152,21 @@ public class UsuarioServiceImp {
                     throw e;
                 }
 
+                EventoDominio evento = EventoDominio.of(
+                        TipoAccion.RECUPERAR_PASSWORD,
+                        Map.of(
+                                "usuario", usuario.getUsuario(),
+                                "correo", usuario.getCorreo(),
+                                "codigo", codigo,
+                                "fechaCreacion", usuario.getCodigoValidacion().getFechaCreacion().toString()
+                        )
+                );
+
+                eventoPublisher.publicar(evento);
+                /*
+                Este es el metodo para enviar el email, pero se ha comentado
+                porque ahora los emails se van a manejar por medio del orquestador
+
                 try {
                     System.out.println("Intentando enviar email...");
                     emailService.sendEmail(new EmailDTO(
@@ -163,7 +178,7 @@ public class UsuarioServiceImp {
                     System.out.println("ERROR al enviar email: " + e.getMessage());
                     e.printStackTrace();
                     throw e;
-                }
+                }*/
 
                 System.out.println("=== FIN enviarCodigoRecuperacion - EXITOSO ===");
             } else {
