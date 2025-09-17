@@ -29,6 +29,7 @@ public class UsuarioServiceImp {
     private final JWTUtils jWTUtils;
     private final EventoPublisher eventoPublisher;
 
+
     public void registrarUsuario(@Valid DatosUsuario datosUsuario) throws Exception {
         Usuario usuario = Usuario.builder()
                 .usuario(datosUsuario.getUsuario())
@@ -41,7 +42,12 @@ public class UsuarioServiceImp {
         }
         usuarioRepo.save(usuario);
 
-        // 📢 Publicar evento de dominio a RabbitMQ
+        /*
+        Después de regitrar un usuario, el servicio envia el evento de dominio a RabbitMQ
+        para publicarlo, y que el microservicio del orquestador puedan reaccionar a este evento.
+         */
+
+        //Publicar evento de dominio a RabbitMQ
         EventoDominio evento = EventoDominio.of(
                 TipoAccion.REGISTRO_USUARIO,
                 Map.of("id", usuario.getUsuario(), "correo", usuario.getCorreo())
