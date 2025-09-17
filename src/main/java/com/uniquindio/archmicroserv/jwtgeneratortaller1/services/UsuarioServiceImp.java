@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -204,6 +205,22 @@ public class UsuarioServiceImp {
             throw new Exception("Contrasena invalida");
         }
         Map<String, Object> map = buildClaims(usuario);
+
+        /*
+        Se ha creado el evento de dominio para la acción de autenticación
+        que será publicado en RabbitMQ para que otros microservicios puedan
+        reaccionar a este evento.
+         */
+        EventoDominio evento = EventoDominio.of(
+                TipoAccion.AUTENTICACION,
+                Map.of(
+                        "usuario", usuario.getUsuario(),
+                        "correo", usuario.getCorreo(),
+                        "fecha", Instant.now().toString()
+                )
+        );
+
+        eventoPublisher.publicar(evento);
         return new TokenDTO(jWTUtils.generarToken(usuario.getCorreo(), map));
     }
 
