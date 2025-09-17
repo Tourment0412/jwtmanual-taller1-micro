@@ -9,7 +9,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.Rol;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.enums.Rol;
 import jakarta.annotation.PostConstruct;
 
 import javax.crypto.SecretKey;

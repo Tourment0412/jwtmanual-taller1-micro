@@ -1,5 +1,6 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.model;
 
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.enums.Rol;
 import jakarta.persistence.*;
 import lombok.*;
 

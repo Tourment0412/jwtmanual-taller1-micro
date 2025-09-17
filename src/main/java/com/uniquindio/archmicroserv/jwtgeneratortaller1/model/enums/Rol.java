@@ -1,4 +1,4 @@
-package com.uniquindio.archmicroserv.jwtgeneratortaller1.model;
+package com.uniquindio.archmicroserv.jwtgeneratortaller1.model.enums;
 
 import lombok.Getter;
 

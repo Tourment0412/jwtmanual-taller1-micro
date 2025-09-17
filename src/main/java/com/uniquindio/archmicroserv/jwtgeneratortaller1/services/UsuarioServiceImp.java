@@ -2,13 +2,12 @@ package com.uniquindio.archmicroserv.jwtgeneratortaller1.services;
 
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.JWTUtils;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.Constants;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveDTO;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.EmailDTO;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.TokenDTO;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.*;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.exceptions.UsuarioNotFoundException;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.messaging.EventoPublisher;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.CodigoValidacion;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.Usuario;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.enums.TipoAccion;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.repositories.UsuarioRepo;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -28,6 +27,7 @@ public class UsuarioServiceImp {
     private final UsuarioRepo usuarioRepo;
     private final EmailServiceImp emailService;
     private final JWTUtils jWTUtils;
+    private final EventoPublisher eventoPublisher;
 
     public void registrarUsuario(@Valid DatosUsuario datosUsuario) throws Exception {
         Usuario usuario = Usuario.builder()
@@ -40,6 +40,13 @@ public class UsuarioServiceImp {
             throw new Exception("El usuario ya existe");
         }
         usuarioRepo.save(usuario);
+
+        // 📢 Publicar evento de dominio a RabbitMQ
+        EventoDominio evento = EventoDominio.of(
+                TipoAccion.REGISTRO_USUARIO,
+                Map.of("id", usuario.getUsuario(), "correo", usuario.getCorreo())
+        );
+        eventoPublisher.publicar(evento);
     }
 
     public void cambiarClave(CambioClaveDTO datos) throws Exception {

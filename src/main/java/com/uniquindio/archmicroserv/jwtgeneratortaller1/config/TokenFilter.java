@@ -2,7 +2,7 @@ package com.uniquindio.archmicroserv.jwtgeneratortaller1.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.MessageDTO;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.Rol;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.enums.Rol;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
