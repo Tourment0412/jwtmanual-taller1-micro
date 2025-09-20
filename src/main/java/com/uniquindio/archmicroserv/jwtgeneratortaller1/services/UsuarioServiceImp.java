@@ -51,7 +51,7 @@ public class UsuarioServiceImp {
         //Publicar evento de dominio a RabbitMQ
         EventoDominio evento = EventoDominio.of(
                 TipoAccion.REGISTRO_USUARIO,
-                Map.of("id", usuario.getUsuario(), "correo", usuario.getCorreo())
+                Map.of("usuario", usuario.getUsuario(), "correo", usuario.getCorreo())
         );
         eventoPublisher.publicar(evento);
     }
