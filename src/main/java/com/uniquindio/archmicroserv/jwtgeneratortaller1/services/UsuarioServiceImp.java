@@ -36,6 +36,7 @@ public class UsuarioServiceImp {
                 .usuario(datosUsuario.getUsuario())
                 .clave(datosUsuario.getClave())
                 .correo(datosUsuario.getCorreo())
+                .numeroTelefono(datosUsuario.getNumeroTelefono())
                 .codigoValidacion(new CodigoValidacion())
                 .build();
         if (usuarioRepo.findById(datosUsuario.getUsuario()).isPresent()) {
@@ -51,7 +52,10 @@ public class UsuarioServiceImp {
         //Publicar evento de dominio a RabbitMQ
         EventoDominio evento = EventoDominio.of(
                 TipoAccion.REGISTRO_USUARIO,
-                Map.of("usuario", usuario.getUsuario(), "correo", usuario.getCorreo())
+                Map.of("usuario", usuario.getUsuario(),
+                        "correo", usuario.getCorreo(),
+                        "numeroTelefono", usuario.getNumeroTelefono()
+                )
         );
         eventoPublisher.publicar(evento);
     }
@@ -77,7 +81,8 @@ public class UsuarioServiceImp {
                         Map.of(
                                 "usuario", usuario.getUsuario(),
                                 "correo", usuario.getCorreo(),
-                                "fechaCambio", LocalDateTime.now().toString()
+                                "fechaCambio", LocalDateTime.now().toString(),
+                                "numeroTelefono", usuario.getNumeroTelefono()
                         )
                 );
 
@@ -247,7 +252,8 @@ public class UsuarioServiceImp {
                 Map.of(
                         "usuario", usuario.getUsuario(),
                         "correo", usuario.getCorreo(),
-                        "fecha", Instant.now().toString()
+                        "fecha", Instant.now().toString(),
+                        "numeroTelefono", usuario.getNumeroTelefono()
                 )
         );
 

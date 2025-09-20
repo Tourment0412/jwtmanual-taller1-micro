@@ -19,6 +19,8 @@ public class Usuario {
     private String correo;
     @Column(name = "clave", nullable = false, length = 255)
     private String clave;
+    @Column(name = "numero_telefono", nullable = false, length = 20)
+    private String numeroTelefono;
     @Column(name = "rol", nullable = false)
     private Rol rol;
 
@@ -27,10 +29,11 @@ public class Usuario {
     private CodigoValidacion codigoValidacion;
 
     @Builder
-    public Usuario(String usuario, String clave, String correo, CodigoValidacion codigoValidacion) {
+    public Usuario(String usuario, String clave, String correo, String numeroTelefono, CodigoValidacion codigoValidacion) {
         this.usuario = usuario;
         this.clave = clave;
         this.correo = correo;
+        this.numeroTelefono = numeroTelefono;
         this.rol = Rol.getRolByName("CLIENTE");
         this.codigoValidacion = codigoValidacion;
     }
