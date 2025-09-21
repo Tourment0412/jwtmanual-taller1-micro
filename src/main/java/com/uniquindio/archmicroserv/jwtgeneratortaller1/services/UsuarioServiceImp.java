@@ -26,7 +26,7 @@ import java.util.*;
 public class UsuarioServiceImp {
 
     private final UsuarioRepo usuarioRepo;
-    private final EmailServiceImp emailService;
+    //private final EmailServiceImp emailService;
     private final JWTUtils jWTUtils;
     private final EventoPublisher eventoPublisher;
 
@@ -81,7 +81,7 @@ public class UsuarioServiceImp {
                         Map.of(
                                 "usuario", usuario.getUsuario(),
                                 "correo", usuario.getCorreo(),
-                                "fechaCambio", LocalDateTime.now().toString(),
+                                "fecha", LocalDateTime.now().toString(),
                                 "numeroTelefono", usuario.getNumeroTelefono()
                         )
                 );
@@ -179,7 +179,7 @@ public class UsuarioServiceImp {
                                 "usuario", usuario.getUsuario(),
                                 "correo", usuario.getCorreo(),
                                 "codigo", codigo,
-                                "fechaCreacion", usuario.getCodigoValidacion().getFechaCreacion().toString()
+                                "fecha", usuario.getCodigoValidacion().getFechaCreacion().toString()
                         )
                 );
 
