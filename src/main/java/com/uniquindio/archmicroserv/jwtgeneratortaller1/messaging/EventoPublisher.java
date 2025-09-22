@@ -14,6 +14,9 @@ public class EventoPublisher {
     }
 
     public void publicar(EventoDominio evento) {
+        System.out.println("Publicando evento: " + evento);
+        System.out.println("Veamos el routing key");
+        System.out.println(evento.tipoAccion().routingKey());
         rabbitTemplate.convertAndSend(
                 "dominio.events",                // exchange
                 evento.tipoAccion().routingKey(), // routing key desde enum

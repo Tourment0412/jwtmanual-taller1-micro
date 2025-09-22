@@ -42,7 +42,9 @@ public class UsuarioServiceImp {
         if (usuarioRepo.findById(datosUsuario.getUsuario()).isPresent()) {
             throw new Exception("El usuario ya existe");
         }
+        System.out.println("Se creo el usuairo");
         usuarioRepo.save(usuario);
+        System.out.println("Se guardo el usuario");
 
         /*
         Después de regitrar un usuario, el servicio envia el evento de dominio a RabbitMQ
@@ -58,6 +60,7 @@ public class UsuarioServiceImp {
                 )
         );
         eventoPublisher.publicar(evento);
+        System.out.println("El evento fue publicado");
     }
 
     public void cambiarClave(CambioClaveDTO datos) throws Exception {
