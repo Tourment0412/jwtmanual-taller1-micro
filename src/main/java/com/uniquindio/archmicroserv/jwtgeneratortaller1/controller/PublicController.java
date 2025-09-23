@@ -9,6 +9,7 @@ import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.EnviarCodigoUsuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.MessageDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.TokenDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.LoginRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,8 +17,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.hibernate.exception.SQLGrammarException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -102,10 +105,20 @@ public class PublicController {
             return ResponseEntity
                     .status(HttpStatus.CREATED) // 201
                     .body(new MessageDTO<>(false, "Usuario registrado exitosamente"));
+        } catch (DataIntegrityViolationException e) {
+            // Violaciones de unicidad u otras integridades -> 409
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(new MessageDTO<>(true, "El usuario ya existe en el sistema"));
+        } catch (SQLGrammarException e) {
+            // Problemas de esquema/tabla/SQL -> 500 con mensaje claro
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageDTO<>(true, "Error de base de datos: esquema o tablas no disponibles"));
         } catch (Exception e) {
             return ResponseEntity
-                    .status(HttpStatus.CONFLICT) // 409
-                    .body(new MessageDTO<>(true, "El usuario ya existe en el sistema"));
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageDTO<>(true, "Error interno del servidor"));
         }
 
     }
@@ -163,7 +176,7 @@ public class PublicController {
             )
     })
     @PostMapping("/sesiones")
-    public ResponseEntity<MessageDTO<?>> login(@Valid @RequestBody DatosUsuario request) {
+    public ResponseEntity<MessageDTO<?>> login(@Valid @RequestBody LoginRequest request) {
         try {
                 TokenDTO tokendto= usuarioService.login(request);
                 return ResponseEntity.ok(new MessageDTO<>(false, tokendto));
