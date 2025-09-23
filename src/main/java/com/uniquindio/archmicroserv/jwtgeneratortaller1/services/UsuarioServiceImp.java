@@ -32,6 +32,7 @@ public class UsuarioServiceImp {
 
 
     public void registrarUsuario(@Valid DatosUsuario datosUsuario) throws Exception {
+        System.out.println("=== INICIO registrarUsuario ===");
         Usuario usuario = Usuario.builder()
                 .usuario(datosUsuario.getUsuario())
                 .clave(datosUsuario.getClave())
@@ -39,12 +40,18 @@ public class UsuarioServiceImp {
                 .numeroTelefono(datosUsuario.getNumeroTelefono())
                 .codigoValidacion(new CodigoValidacion())
                 .build();
-        if (usuarioRepo.findById(datosUsuario.getUsuario()).isPresent()) {
-            throw new Exception("El usuario ya existe");
+        try {
+            if (usuarioRepo.findById(datosUsuario.getUsuario()).isPresent()) {
+                throw new Exception("El usuario ya existe");
+            }
+            System.out.println("Se creo el usuairo");
+            usuarioRepo.save(usuario);
+            System.out.println("Se guardo el usuario");
+        } catch (Exception e) {
+            System.out.println("ERROR guardando usuario: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
-        System.out.println("Se creo el usuairo");
-        usuarioRepo.save(usuario);
-        System.out.println("Se guardo el usuario");
 
         /*
         Después de regitrar un usuario, el servicio envia el evento de dominio a RabbitMQ
@@ -59,8 +66,15 @@ public class UsuarioServiceImp {
                         "numeroTelefono", usuario.getNumeroTelefono()
                 )
         );
-        eventoPublisher.publicar(evento);
-        System.out.println("El evento fue publicado");
+        try {
+            eventoPublisher.publicar(evento);
+            System.out.println("El evento fue publicado");
+        } catch (Exception e) {
+            System.out.println("ERROR publicando evento: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+        System.out.println("=== FIN registrarUsuario ===");
     }
 
     public void cambiarClave(CambioClaveDTO datos) throws Exception {
@@ -233,7 +247,7 @@ public class UsuarioServiceImp {
                 usuario.get().getClave().equals(request.getClave());
     }
 
-    public TokenDTO login(DatosUsuario datos) throws Exception {
+    public TokenDTO login(LoginRequest datos) throws Exception {
         Optional<Usuario> usuarioEncontrado = usuarioRepo.findById(datos.getUsuario());
         if (usuarioEncontrado.isEmpty()) {
             throw new Exception("Usuario no encontrado");
