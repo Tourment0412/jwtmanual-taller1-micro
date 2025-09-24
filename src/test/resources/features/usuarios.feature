@@ -8,12 +8,14 @@ Característica: Gestión de usuarios (registro, login y administración)
     Cuando registro un usuario con datos válidos
     Entonces la respuesta debe tener estado 201
     Y el cuerpo debe indicar éxito
+    Y el cuerpo cumple el esquema "schemas/message_dto.schema.json"
 
   Escenario: Iniciar sesión con credenciales válidas
     Dado que existe un usuario registrado válido
     Cuando inicio sesión con credenciales correctas
     Entonces la respuesta debe tener estado 200
     Y debo obtener un token JWT válido
+    Y el cuerpo cumple el esquema "schemas/token_response.schema.json"
 
   Escenario: Solicitar código de recuperación de contraseña
     Dado que existe un usuario registrado válido
@@ -26,6 +28,7 @@ Característica: Gestión de usuarios (registro, login y administración)
     Cuando consulto la lista de usuarios en la página 0
     Entonces la respuesta debe tener estado 200
     Y el cuerpo debe contener una lista de usuarios
+    Y el cuerpo cumple el esquema "schemas/usuarios_page.schema.json"
 
   @admin
   Escenario: Eliminar un usuario con token de admin

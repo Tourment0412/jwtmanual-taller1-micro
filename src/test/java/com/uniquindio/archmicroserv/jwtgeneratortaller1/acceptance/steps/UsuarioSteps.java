@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.web.server.LocalServerPort;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -60,6 +61,12 @@ public class UsuarioSteps {
     @Entonces("la respuesta debe tener estado {int}")
     public void validarEstado(int status) {
         lastResponse.then().statusCode(status);
+    }
+
+    @Y("el cuerpo cumple el esquema {string}")
+    public void cuerpoCumpleEsquema(String schemaPath) {
+        // schemaPath: relativo a classpath, por ejemplo "schemas/message_dto.schema.json"
+        lastResponse.then().body(matchesJsonSchemaInClasspath(schemaPath));
     }
 
     @Y("el cuerpo debe indicar éxito")
