@@ -17,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -269,7 +268,7 @@ public class UsuarioServiceImp {
                 Map.of(
                         "usuario", usuario.getUsuario(),
                         "correo", usuario.getCorreo(),
-                        "fecha", Instant.now().toString(),
+                        "fecha", LocalDateTime.now().minusHours(5).toString(),
                         "numeroTelefono", usuario.getNumeroTelefono()
                 )
         );
