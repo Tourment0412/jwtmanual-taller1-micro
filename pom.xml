@@ -29,6 +29,7 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<allure.version>2.29.0</allure.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -200,6 +201,22 @@
 			<version>1.20.2</version>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- DataFaker (Java Faker moderno) -->
+		<dependency>
+			<groupId>net.datafaker</groupId>
+			<artifactId>datafaker</artifactId>
+			<version>2.3.1</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Allure Cucumber 7 -->
+		<dependency>
+			<groupId>io.qameta.allure</groupId>
+			<artifactId>allure-cucumber7-jvm</artifactId>
+			<version>${allure.version}</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -222,6 +239,15 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>3.2.5</version>
+			</plugin>
+			<!-- Allure Maven Plugin to generate report -->
+			<plugin>
+				<groupId>io.qameta.allure</groupId>
+				<artifactId>allure-maven</artifactId>
+				<version>${allure.version}</version>
+				<configuration>
+					<reportVersion>${allure.version}</reportVersion>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

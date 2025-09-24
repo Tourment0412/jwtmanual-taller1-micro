@@ -2,6 +2,7 @@ package com.uniquindio.archmicroserv.jwtgeneratortaller1.acceptance.steps;
 
 import io.cucumber.java.es.*;
 import io.restassured.http.ContentType;
+import net.datafaker.Faker;
 import io.restassured.response.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -20,9 +21,10 @@ public class UsuarioSteps {
     private String contextPath;
 
     private Response lastResponse;
+    private final Faker faker = new Faker();
     private String ultimoUsuario = "user_" + System.currentTimeMillis();
-    private String ultimoPassword = "Passw0rd*123";
-    private String ultimoTelefono = "3001234567";
+    private String ultimoPassword = "Passw0rd*" + faker.number().digits(3);
+    private String ultimoTelefono = "3" + faker.number().digits(9);
     private String adminToken;
     private String ultimoToken;
 
@@ -37,16 +39,22 @@ public class UsuarioSteps {
 
     @Cuando("registro un usuario con datos válidos")
     public void registroUsuarioValido() {
+        // Generación aleatoria coherente entre campos
+        ultimoUsuario = "user_" + faker.number().digits(8);
+        String correo = faker.internet().emailAddress();
+        ultimoTelefono = "3" + faker.number().digits(9);
+        ultimoPassword = "Passw0rd*" + faker.number().digits(3);
+
         var body = """
         {
           "usuario":"%s",
-          "correo":"%s@example.com",
+          "correo":"%s",
           "numeroTelefono":"%s",
           "clave":"%s",
-          "nombres":"Nombre",
-          "apellidos":"Apellido"
+          "nombres":"%s",
+          "apellidos":"%s"
         }
-        """.formatted(ultimoUsuario, ultimoUsuario, ultimoTelefono, ultimoPassword);
+        """.formatted(ultimoUsuario, correo, ultimoTelefono, ultimoPassword, faker.name().firstName(), faker.name().lastName());
 
         lastResponse = given()
                 .contentType(ContentType.JSON)

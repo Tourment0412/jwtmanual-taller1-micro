@@ -1,3 +1,32 @@
+# Maven/Java build output
+target/
+
+# Allure generated content (recreable)
+allure-results/
+allure-report/
+
+# Testcontainers/Ryuk logs
+\.testcontainers*/
+**/testcontainers-*.log
+
+# IDE settings
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+.factorypath
+.vscode/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Logs and temporary
+*.log
+*.tmp
+*.swp
+
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar

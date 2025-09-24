@@ -14,7 +14,7 @@ import static io.cucumber.junit.platform.engine.Constants.PLUGIN_PROPERTY_NAME;
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME,
         value = "com.uniquindio.archmicroserv.jwtgeneratortaller1.acceptance.steps,"
                 + "com.uniquindio.archmicroserv.jwtgeneratortaller1.acceptance.config")
-@ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty, summary, html:target/cucumber-report.html")
+@ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty, summary, html:target/cucumber-report.html, io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm")
 @ConfigurationParameter(key = "cucumber.filter.tags", value = "")
 public class CucumberAcceptanceTest {
 }
