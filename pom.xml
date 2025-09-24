@@ -63,6 +63,26 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Cucumber + JUnit 5 -->
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-java</artifactId>
+			<version>7.16.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-junit-platform-engine</artifactId>
+			<version>7.16.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-spring</artifactId>
+			<version>7.16.1</version>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- Dependencias extra -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
@@ -136,11 +156,29 @@
         </dependency>
 	</dependencies>
 
+	<!-- Cliente HTTP para steps (elige uno; aquí RestAssured) -->
+	<dependency>
+		<groupId>io.rest-assured</groupId>
+		<artifactId>rest-assured</artifactId>
+		<version>5.5.0</version>
+		<scope>test</scope>
+	</dependency>
+
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>3.2.5</version>
+				<configuration>
+					<includes>
+					<!-- Descubre automáticamente las pruebas Cucumber -->
+					<include>**/*Test.java</include>
+					<include>**/*Tests.java</include>
+					<include>**/*IT.java</include>
+					<include>**/*Cucumber*.java</include>
+					</includes>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
