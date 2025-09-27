@@ -1,4 +1,4 @@
-# Pruebas de aceptación con Cucumber, Spring Boot y Testcontainers
++# Pruebas de aceptación con Cucumber, Spring Boot y Testcontainers
 
 Este documento explica cómo se implementaron las pruebas de aceptación del microservicio, por qué se eligió cada herramienta y qué conceptos conviene dominar. Incluye un diagrama para visualizar el flujo end‑to‑end.
 

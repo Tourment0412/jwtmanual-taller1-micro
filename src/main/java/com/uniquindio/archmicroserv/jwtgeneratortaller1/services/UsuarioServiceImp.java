@@ -117,6 +117,13 @@ public class UsuarioServiceImp {
             throw new Exception("Usuario no encontrado");
         }
         Usuario usuario = usuarioObtenido.get();
+        
+        // Verificar si el correo ya existe en otro usuario
+        Optional<Usuario> usuarioConMismoCorreo = usuarioRepo.findByCorreo(datosUsuario.getCorreo());
+        if (usuarioConMismoCorreo.isPresent() && !usuarioConMismoCorreo.get().getUsuario().equals(datosUsuario.getUsuario())) {
+            throw new Exception("El correo electrónico ya está en uso por otro usuario");
+        }
+        
         usuario.setCorreo(datosUsuario.getCorreo());
         usuario.setClave(datosUsuario.getClave());
         usuarioRepo.save(usuario);
