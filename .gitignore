@@ -3,7 +3,8 @@ target/
 
 # Allure generated content (recreable)
 allure-results/
-allure-report/
+allure-report
+.allure/
 
 # Testcontainers/Ryuk logs
 \.testcontainers*/

@@ -29,7 +29,7 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
-		<allure.version>2.29.0</allure.version>
+		<allure.version>2.19.0</allure.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -216,6 +216,12 @@
 			<artifactId>allure-cucumber7-jvm</artifactId>
 			<version>${allure.version}</version>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>io.cucumber</groupId>
+					<artifactId>gherkin</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 
@@ -233,6 +239,9 @@
 						<include>**/*IT.java</include>
 						<include>**/*Cucumber*.java</include>
 					</includes>
+					<systemPropertyVariables>
+						<allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
+					</systemPropertyVariables>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -244,7 +253,7 @@
 			<plugin>
 				<groupId>io.qameta.allure</groupId>
 				<artifactId>allure-maven</artifactId>
-				<version>${allure.version}</version>
+				<version>2.10.0</version>
 				<configuration>
 					<reportVersion>${allure.version}</reportVersion>
 				</configuration>
