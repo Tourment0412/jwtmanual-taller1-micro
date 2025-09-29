@@ -34,8 +34,7 @@ import static io.cucumber.junit.platform.engine.Constants.PLUGIN_PROPERTY_NAME;
 @IncludeEngines("cucumber")  // Usa el motor de Cucumber para ejecutar las pruebas
 @SelectClasspathResource("features")  // Busca archivos .feature en el classpath
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME,
-        value = "com.uniquindio.archmicroserv.jwtgeneratortaller1.acceptance.steps,"  // Paquete de step definitions
-                + "com.uniquindio.archmicroserv.jwtgeneratortaller1.acceptance.config")  // Paquete de configuraciones
+        value = "com.uniquindio.archmicroserv.jwtgeneratortaller1.acceptance.steps,com.uniquindio.archmicroserv.jwtgeneratortaller1.acceptance.config")
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, 
     value = "pretty, summary, html:target/cucumber-report.html, io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm")  // Plugins de reporte
 @ConfigurationParameter(key = "cucumber.filter.tags", value = "")  // Filtro de tags (vacío = todos)
