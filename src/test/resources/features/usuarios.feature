@@ -127,6 +127,61 @@ Característica: Gestión de usuarios (registro, login y administración)
     Entonces la respuesta debe tener estado 200
     # Valida que la eliminación sea exitosa
 
+  # ===== ESCENARIO 6: ELIMINACIÓN DE USUARIO SIN TOKEN(ADMIN) =====
+  # Prueba que se este haciendo una verificacion adecuada de tokens antes
+  # de permitir la eliminacion de usuarios.
+
+  # TODO: Verificar que el codigo de error si sea 401 en este caso
+  @admin
+  Escenario: Eliminar un usuario sin token
+    Dado que no tengo un token
+    Y existe un usuario registrado válido
+    Cuando intento eliminar ese usuario
+    Entonces la respuesta debe tener estado 401
+
+  # ===== ESCENARIO 6: ELIMINACIÓN DE USUARIO SIN TOKEN(ADMIN) =====
+  # Prueba que se este haciendo una verificacion adecuada de tokens antes
+  # de permitir la eliminacion de usuarios.
+  # TODO: Verificar que el codigo de error si sea 401 en este caso
+  @admin
+  Escenario: Eliminar un usuario con token inválido
+    Dado que tengo un token inválido
+    Y existe un usuario registrado válido
+    Cuando intento eliminar ese usuario
+    Entonces la respuesta debe tener estado 401
+  
+  # TODO: Verificar que el codigo de error si sea 404 en este caso
+  @admin
+  Escenario: Eliminar un usuario que no existe
+    Dado que inicio sesión como admin
+    Cuando intento eliminar un usuario que no existe
+    Entonces la respuesta debe tener estado 404
+    # TODO: Verificar la respuesta exacta
+    Y el cuerpo debe indicar que el usuario no fue encontrado
+
+  # TODO: Verificar que el codigo de error si sea 401 en este caso
+  @admin
+  Escenario: Listar usuarios sin token
+    Dado que no tengo un token
+    Cuando intento consultar la lista de usuarios
+    Entonces la respuesta debe tener estado 401
+
+  # TODO: Verificar que el codigo de error si sea 401 en este caso
+  @admin
+  Escenario: Listar usuarios con token inválido
+    Dado que tengo un token inválido
+    Cuando intento consultar la lista de usuarios
+    Entonces la respuesta debe tener estado 401
+
+   # TODO: Verificar que el codigo de error si sea 400 en este caso
+  @admin
+  Escenario: Listar usuarios con un numero de pagina invalido
+    Dado que inicio sesión como admin
+    Cuando intento consultar la lista de usuarios en la página -1
+    Entonces la respuesta debe tener estado 400
+    # TODO: Verificar la respuesta exacta
+    Y el cuerpo debe indicar que el número de página es inválido
+
 # ===== NOTAS ADICIONALES =====
 # 
 # Tags utilizados:
@@ -144,29 +199,6 @@ Característica: Gestión de usuarios (registro, login y administración)
 #
 # =============================================================================
 
-  # TODO: Verificar que el codigo de error si sea 401 en este caso
-  @admin
-  Escenario: Eliminar un usuario sin token
-    Dado que no tengo un token
-    Y existe un usuario registrado válido
-    Cuando intento eliminar ese usuario
-    Entonces la respuesta debe tener estado 401
-
-  # TODO: Verificar que el codigo de error si sea 401 en este caso
-  @admin
-  Escenario: Eliminar un usuario con token inválido
-    Dado que tengo un token inválido
-    Y existe un usuario registrado válido
-    Cuando intento eliminar ese usuario
-    Entonces la respuesta debe tener estado 401
-  
-  # TODO: Verificar que el codigo de error si sea 404 en este caso
-  @admin
-  Escenario: Eliminar un usuario que no existe
-    Dado que inicio sesión como admin
-    Cuando intento eliminar un usuario que no existe
-    Entonces la respuesta debe tener estado 404
-    # TODO: Verificar la respuesta exacta
-    Y el cuerpo debe indicar que el usuario no fue encontrado
+ 
 
 
