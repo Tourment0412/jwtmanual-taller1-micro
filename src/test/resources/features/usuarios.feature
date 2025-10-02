@@ -144,4 +144,29 @@ Característica: Gestión de usuarios (registro, login y administración)
 #
 # =============================================================================
 
+  # TODO: Verificar que el codigo de error si sea 401 en este caso
+  @admin
+  Escenario: Eliminar un usuario sin token
+    Dado que no tengo un token
+    Y existe un usuario registrado válido
+    Cuando intento eliminar ese usuario
+    Entonces la respuesta debe tener estado 401
+
+  # TODO: Verificar que el codigo de error si sea 401 en este caso
+  @admin
+  Escenario: Eliminar un usuario con token inválido
+    Dado que tengo un token inválido
+    Y existe un usuario registrado válido
+    Cuando intento eliminar ese usuario
+    Entonces la respuesta debe tener estado 401
+  
+  # TODO: Verificar que el codigo de error si sea 404 en este caso
+  @admin
+  Escenario: Eliminar un usuario que no existe
+    Dado que inicio sesión como admin
+    Cuando intento eliminar un usuario que no existe
+    Entonces la respuesta debe tener estado 404
+    # TODO: Verificar la respuesta exacta
+    Y el cuerpo debe indicar que el usuario no fue encontrado
+
 
