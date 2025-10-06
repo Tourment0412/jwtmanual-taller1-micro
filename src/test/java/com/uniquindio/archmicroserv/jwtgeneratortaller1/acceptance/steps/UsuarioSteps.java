@@ -471,4 +471,71 @@ public class UsuarioSteps {
                 .header("Authorization", "Bearer " + adminToken)
                 .delete(baseUrl() + "/usuarios/" + ultimoUsuario);
     }
+
+    /**
+     * Paso: "Dado que no tengo token"
+     * 
+     * Este paso limpia el token de administrador para simular no tener un token
+     * 
+     * Proceso: 
+     * 1. Limpia la variable adminToken (Se establece como vacio)
+     */
+    @Dado("que no tengo un token")
+    public void noTengoToken() {
+        adminToken = "";
+    }
+
+    /**
+     * Paso: "Dado que no tengo un token de admin"
+     * 
+     * Autentica un usuario en el sistema usando las credenciales del último
+     * usuario creado (Que no es admin). Si la autenticación es exitosa, extrae y guarda el
+     * token JWT para usar en peticiones posteriores.
+     * 
+     * Proceso:
+     * 1. Crea JSON con usuario y contraseña del último usuario registrado (Que no es admin)
+     * 2. Envía petición POST a /sesiones
+     * 3. Verifica que la respuesta sea exitosa (código 200)
+     * 4. Extrae y guarda el token JWT de este usaurio como admin
+     * 5. Valida que el token no esté vacío
+     */
+    @Dado("que no tengo un token de admin")
+    public void noTengoTokenAdmin() {
+         var body = """
+        {
+          "usuario":"%s",
+          "clave":"%s"
+        }
+        """.formatted(ultimoUsuario, ultimoPassword);
+
+        var resp = given()
+                .contentType(ContentType.JSON)
+                .body(body)
+                .post(baseUrl() + "/sesiones");
+
+        resp.then().statusCode(200);
+        adminToken = resp.jsonPath().getString("respuesta.token");
+        if (adminToken == null) {
+            adminToken = resp.jsonPath().getString("token");
+        }
+        assertThat(adminToken, not(blankOrNullString()));
+    }
+
+    /**
+     * Paso: "Cuando elimino elimino un usuario que no existe"
+     * 
+     * Intenta eliminar un usuario que no existe en el sistema usando el token de administrador.
+     * Este paso simula la funcionalidad de administración para eliminar usuarios inexistentes.
+     * 
+     * Proceso:
+     * 1. Incluye el token JWT del admin en el header Authorization
+     * 2. Envía petición DELETE a /usuarios/{usuario} con un usuario inexistente
+     * 3. La respuesta debería indicar que el usuario no fue encontrado (404)
+     */
+    @Cuando("elimino elimino un usuario que no existe")
+    public void eliminarUsuarioInexistente() {
+        lastResponse = given()
+            .header("Authorization", "Bearer " + adminToken)
+            .delete(baseUrl() + "/usuarios/" + "usuario_inexistente_12345");
+    }
 }

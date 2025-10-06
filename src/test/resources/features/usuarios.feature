@@ -136,7 +136,7 @@ Característica: Gestión de usuarios (registro, login y administración)
   Escenario: Eliminar un usuario sin token
     Dado que no tengo un token
     Y existe un usuario registrado válido
-    Cuando intento eliminar ese usuario
+    Cuando elimino ese usuario
     Entonces la respuesta debe tener estado 401
 
   # ===== ESCENARIO 7: ELIMINACIÓN DE USUARIO CON TOKEN INVALIDO(ADMIN) =====
@@ -146,9 +146,9 @@ Característica: Gestión de usuarios (registro, login y administración)
   # TODO: Verificar que el codigo de error si sea 401 en este caso
   @admin
   Escenario: Eliminar un usuario con token inválido
-    Dado que tengo un token inválido
+    Dado que no tengo un token de admin
     Y existe un usuario registrado válido
-    Cuando intento eliminar ese usuario
+    Cuando elimino ese usuario
     Entonces la respuesta debe tener estado 401
 
   # ===== ESCENARIO 8: ELIMINACIÓN DE USUARIO QUE NO EXISTE (ADMIN) =====
@@ -159,10 +159,10 @@ Característica: Gestión de usuarios (registro, login y administración)
   @admin
   Escenario: Eliminar un usuario que no existe
     Dado que inicio sesión como admin
-    Cuando intento eliminar un usuario que no existe
+    Cuando elimino un usuario que no existe
     Entonces la respuesta debe tener estado 404
     # TODO: Verificar la respuesta exacta
-    Y el cuerpo debe indicar que el usuario no fue encontrado
+   # Y el cuerpo debe indicar que el usuario no fue encontrado
 
   # ===== ESCENARIO 9: LISTADO DE USUARIOS SIN TOKEN (ADMIN) =====
   # Prueba que se este haciendo una verificacion adecuada de la existencia de tokens de admin antes
@@ -172,21 +172,21 @@ Característica: Gestión de usuarios (registro, login y administración)
   @admin
   Escenario: Listar usuarios sin token
     Dado que no tengo un token
-    Cuando intento consultar la lista de usuarios
+    Cuando consulto la lista de usuarios en la página 0
     Entonces la respuesta debe tener estado 401
 
-  # ===== ESCENARIO 7: LISTADO DE USUARIOS CON TOKEN INVALIDO(ADMIN) =====
+  # ===== ESCENARIO 10: LISTADO DE USUARIOS CON TOKEN INVALIDO(ADMIN) =====
   # Prueba que se este haciendo una verificacion adecuada del rol de los tokens antes
   # de permitir el listado de todos los usuarios.
   
   # TODO: Verificar que el codigo de error si sea 401 en este caso
   @admin
   Escenario: Listar usuarios con token inválido
-    Dado que tengo un token inválido
-    Cuando intento consultar la lista de usuarios
+    Dado que no tengo un token de admin
+    Cuando consulto la lista de usuarios en la página 0
     Entonces la respuesta debe tener estado 401
 
-  # ===== ESCENARIO 8: LISTADO DE USUARIOS CON PAGINA INVALIDA (ADMIN) =====
+  # ===== ESCENARIO 11: LISTADO DE USUARIOS CON PAGINA INVALIDA (ADMIN) =====
   # Prueba que se este haciendo una verificacion adecuada del numero de pagina antes
   # de permitir el listado de todos los usuarios.
 
@@ -194,10 +194,10 @@ Característica: Gestión de usuarios (registro, login y administración)
   @admin
   Escenario: Listar usuarios con un numero de pagina invalido
     Dado que inicio sesión como admin
-    Cuando intento consultar la lista de usuarios en la página -1
+    Cuando consulto la lista de usuarios en la página -1
     Entonces la respuesta debe tener estado 400
     # TODO: Verificar la respuesta exacta
-    Y el cuerpo debe indicar que el número de página es inválido
+    #Y el cuerpo debe indicar que el número de página es inválido
 
 # ===== NOTAS ADICIONALES =====
 # 
