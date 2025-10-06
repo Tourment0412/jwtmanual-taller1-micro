@@ -480,7 +480,7 @@ public class UsuarioSteps {
      * Proceso: 
      * 1. Limpia la variable adminToken (Se establece como vacio)
      */
-    @Dado("que no tengo un token")
+    @Dado("que no he iniciado sesion")
     public void noTengoToken() {
         adminToken = "";
     }
@@ -499,7 +499,7 @@ public class UsuarioSteps {
      * 4. Extrae y guarda el token JWT de este usaurio como admin
      * 5. Valida que el token no esté vacío
      */
-    @Dado("que no tengo un token de admin")
+    @Dado("que he inciado sesion como un usuario que no es admin")
     public void noTengoTokenAdmin() {
          var body = """
         {

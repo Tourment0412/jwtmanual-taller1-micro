@@ -134,7 +134,7 @@ Característica: Gestión de usuarios (registro, login y administración)
   # TODO: Verificar que el codigo de error si sea 401 en este caso
   @admin
   Escenario: Eliminar un usuario sin token
-    Dado que no tengo un token
+    Dado que no he iniciado sesion
     Y existe un usuario registrado válido
     Cuando elimino ese usuario
     Entonces la respuesta debe tener estado 401
@@ -146,7 +146,7 @@ Característica: Gestión de usuarios (registro, login y administración)
   # TODO: Verificar que el codigo de error si sea 401 en este caso
   @admin
   Escenario: Eliminar un usuario con token inválido
-    Dado que no tengo un token de admin
+    Dado que he inciado sesion como un usuario que no es admin
     Y existe un usuario registrado válido
     Cuando elimino ese usuario
     Entonces la respuesta debe tener estado 401
@@ -171,7 +171,7 @@ Característica: Gestión de usuarios (registro, login y administración)
   # TODO: Verificar que el codigo de error si sea 401 en este caso
   @admin
   Escenario: Listar usuarios sin token
-    Dado que no tengo un token
+    Dado que no he iniciado sesion
     Cuando consulto la lista de usuarios en la página 0
     Entonces la respuesta debe tener estado 401
 
@@ -182,7 +182,7 @@ Característica: Gestión de usuarios (registro, login y administración)
   # TODO: Verificar que el codigo de error si sea 401 en este caso
   @admin
   Escenario: Listar usuarios con token inválido
-    Dado que no tengo un token de admin
+    Dado que he inciado sesion como un usuario que no es admin
     Cuando consulto la lista de usuarios en la página 0
     Entonces la respuesta debe tener estado 401
 
