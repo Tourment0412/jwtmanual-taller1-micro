@@ -30,6 +30,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<allure.version>2.19.0</allure.version>
+		<postgresql.version>42.7.2</postgresql.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -56,6 +57,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
+			<version>${postgresql.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -281,6 +283,12 @@
 						<goals>
 							<goal>report</goal>
 						</goals>
+						<configuration>
+							<reports>
+								<xml enabled="true"/>
+								<html enabled="true"/>
+							</reports>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

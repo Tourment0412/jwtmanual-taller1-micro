@@ -40,6 +40,13 @@ public class TokenFilter extends OncePerRequestFilter {
         }
 
         String requestURI = request.getRequestURI();
+        // Normalizar dobles barras y quitar trailing slash (salvo "/")
+        if (requestURI != null) {
+            requestURI = requestURI.replaceAll("/+", "/");
+            if (requestURI.length() > 1 && requestURI.endsWith("/")) {
+                requestURI = requestURI.substring(0, requestURI.length() - 1);
+            }
+        }
         String method = request.getMethod();
         
         // Permitir acceso libre a rutas de documentación y swagger
@@ -190,10 +197,12 @@ public class TokenFilter extends OncePerRequestFilter {
      * Identifica si una ruta es pública (no requiere autenticación)
      */
     private boolean esRutaPublica(String requestURI, String method) {
-        return (requestURI.equals("/v1/usuarios") && "POST".equals(method)) || // POST /v1/usuarios (registro)
-               (requestURI.equals("/v1/sesiones") && "POST".equals(method)) || // POST /v1/sesiones (login)
-               (requestURI.startsWith("/v1/codigos/") && "POST".equals(method)) || // POST /v1/codigos/{usuario} (recuperar clave)
-               (requestURI.startsWith("/v1/usuarios/") && requestURI.endsWith("/contrasena") && "PATCH".equals(method)); // PATCH /v1/usuarios/{usuario}/contrasena (cambiar clave)
+        return ("POST".equals(method) && 
+                   (requestURI.equals("/v1/usuarios")      // registro
+                    || requestURI.equals("/v1/sesiones")    // login
+                    || requestURI.equals("/v1/codigos")))   // recuperar clave (ruta pública real)
+               ||
+               ("PATCH".equals(method) && requestURI.matches("^/v1/usuarios/[^/]+/contrasena$") ); // cambiar clave
     }
 
     /**
