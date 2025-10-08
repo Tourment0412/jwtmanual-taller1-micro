@@ -131,7 +131,7 @@ Característica: Gestión de usuarios (registro, login y administración)
   # Prueba que se este haciendo una verificacion adecuada de existencia tokens de antes
   # de permitir la eliminacion de usuarios.
 
-  # TODO: Verificar que el codigo de error si sea 401 en este caso
+
   @admin
   Escenario: Eliminar un usuario sin token
     Dado que no he iniciado sesion
@@ -143,13 +143,13 @@ Característica: Gestión de usuarios (registro, login y administración)
   # Prueba que se este haciendo una verificacion adecuada del rol de los tokens antes
   # de permitir la eliminacion de usuarios.
 
-  # TODO: Verificar que el codigo de error si sea 401 en este caso
+ 
   @admin
   Escenario: Eliminar un usuario con token inválido
     Dado que he inciado sesion como un usuario que no es admin
     Y existe un usuario registrado válido
     Cuando elimino ese usuario
-    Entonces la respuesta debe tener estado 401
+    Entonces la respuesta debe tener estado 403
 
   # ===== ESCENARIO 8: ELIMINACIÓN DE USUARIO QUE NO EXISTE (ADMIN) =====
   # Prueba que se este haciendo una verificacion adecuada de la existencia del usuario y si
@@ -184,7 +184,7 @@ Característica: Gestión de usuarios (registro, login y administración)
   Escenario: Listar usuarios con token inválido
     Dado que he inciado sesion como un usuario que no es admin
     Cuando consulto la lista de usuarios en la página 0
-    Entonces la respuesta debe tener estado 401
+    Entonces la respuesta debe tener estado 403
 
   # ===== ESCENARIO 11: LISTADO DE USUARIOS CON PAGINA INVALIDA (ADMIN) =====
   # Prueba que se este haciendo una verificacion adecuada del numero de pagina antes
