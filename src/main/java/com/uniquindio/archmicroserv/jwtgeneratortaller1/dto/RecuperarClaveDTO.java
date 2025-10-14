@@ -1,8 +1,9 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.dto;
 
-import lombok.Data;
+import jakarta.validation.constraints.NotBlank;
 
-@Data
-public class RecuperarClaveDTO {
-    private String usuario;
+public record RecuperarClaveDTO(
+        @NotBlank(message = "El usuario es obligatorio")
+        String usuario
+) {
 }
