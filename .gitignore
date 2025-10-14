@@ -62,5 +62,9 @@ build/
 ### VS Code ###
 .vscode/
 
-
+### Environment Variables ###
 .env
+
+### Test Reports ###
+test-reports/
+/tmp/jenkins-e2e-reports/

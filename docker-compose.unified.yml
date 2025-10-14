@@ -128,7 +128,7 @@ services:
 
   domain-service:
     build:
-      context: ../jwtmanual-taller1-micro
+      context: .
     container_name: jwtmanual-taller1-micro
     ports:
       - "8081:8080"
