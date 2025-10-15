@@ -1,12 +1,15 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.services;
 
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.JWTUtils;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.*;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveDTO;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.EventoDominio;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.LoginRequest;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.TokenDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.exceptions.UsuarioNotFoundException;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.messaging.EventoPublisher;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.CodigoValidacion;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.Usuario;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.enums.Rol;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.repositories.UsuarioRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,11 +23,24 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Tests unitarios para UsuarioServiceImp")

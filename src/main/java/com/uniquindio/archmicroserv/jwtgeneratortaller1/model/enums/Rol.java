@@ -1,7 +1,5 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.model.enums;
 
-import lombok.Getter;
-
 public enum Rol {
     ADMIN("ADMIN"), CLIENTE("CLIENTE");
 
