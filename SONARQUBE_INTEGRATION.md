@@ -69,7 +69,7 @@ sonar.qualitygate.wait=true
 ### **Jenkins**
 
 #### Configuración de SonarQube en Jenkins:
-El script `00-master-setup.groovy` configura automáticamente:
+El archivo `jenkins.yaml` (JCasC) configura automáticamente:
 
 1. **Credenciales de SonarQube:**
    - ID: `sonar-token`
@@ -78,6 +78,11 @@ El script `00-master-setup.groovy` configura automáticamente:
 2. **Instalación de SonarQube:**
    - Nombre: `SonarQube`
    - URL: `http://sonarqube:9000`
+
+3. **Webhook de SonarQube:**
+   - Nombre: `jenkins-webhook`
+   - URL: `http://jenkins:8080/sonarqube-webhook/`
+   - Función: Notifica a Jenkins cuando el análisis de SonarQube termina
 
 #### Pipeline Actualizado:
 El pipeline ahora incluye dos nuevos stages:
@@ -213,6 +218,11 @@ stage('Quality Gate') {
 ./init-sonarqube.sh
 ```
 
+### **Configurar Webhook de SonarQube:**
+```bash
+./configure-sonarqube-webhook.sh
+```
+
 ### **Ver Reportes de Allure Localmente:**
 ```bash
 ./show-allure-reports.sh [BUILD_NUMBER]
@@ -268,8 +278,17 @@ podman exec jenkins curl -s http://sonarqube:9000/api/system/status
 1. Accede a SonarQube: `http://localhost:9001`
 2. Ve a "My Account" → "Security" → "Tokens"
 3. Genera un nuevo token
-4. Actualiza el token en `00-master-setup.groovy`
+4. Actualiza el token en `jenkins.yaml`
 5. Reinicia Jenkins
+
+### **Quality Gate timeout:**
+```bash
+# Verificar que el webhook esté configurado
+curl -s -u "admin:Admin123456!" http://localhost:9001/api/webhooks/list
+
+# Si no está configurado, ejecutar:
+./configure-sonarqube-webhook.sh
+```
 
 ---
 
