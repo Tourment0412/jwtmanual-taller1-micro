@@ -232,28 +232,37 @@ services:
       # Configuración para TestContainers - deshabilitar Docker
       - TESTCONTAINERS_RYUK_DISABLED=true
       - TESTCONTAINERS_CHECKS_DISABLE=true
-    # depends_on:
-    #   - sonar
+    depends_on:
+      sonar:
+        condition: service_healthy
 
-  # sonar:
-  #   image: sonarqube:latest
-  #   container_name: sonarqube
-  #   ports:
-  #     - "9001:9000"
-  #   environment:
-  #     - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
-  #     - SONAR_JDBC_URL=jdbc:postgresql://db:5432/sonar
-  #     - SONAR_JDBC_USERNAME=sonar
-  #     - SONAR_JDBC_PASSWORD=sonar
-  #   volumes:
-  #     - sonarqube_data:/opt/sonarqube/data
-  #     - sonarqube_extensions:/opt/sonarqube/extensions
-  #     - sonarqube_logs:/opt/sonarqube/logs
-  #   user: "1000:1000"
-  #   depends_on:
-  #     - db
+  sonar:
+    image: sonarqube:latest
+    container_name: sonarqube
+    ports:
+      - "9001:9000"
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+      - SONAR_JDBC_URL=jdbc:postgresql://postgres-sonar:5432/sonar
+      - SONAR_JDBC_USERNAME=sonar
+      - SONAR_JDBC_PASSWORD=sonar
+      - SONAR_WEB_JAVAADDITIONALOPTS=-Xmx1024m -Xms512m
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    user: "1000:1000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9000/api/system/status | grep -q '\"status\":\"UP\"' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    depends_on:
+      postgres-sonar:
+        condition: service_healthy
 
-  db:
+  postgres-sonar:
     image: postgres:15
     container_name: postgres-sonar
     environment:
@@ -262,6 +271,11 @@ services:
       - POSTGRES_DB=sonar
     volumes:
       - postgresql:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sonar -d sonar"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   pgdata_notifications:
