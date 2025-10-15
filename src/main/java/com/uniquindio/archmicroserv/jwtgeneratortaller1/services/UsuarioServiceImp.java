@@ -11,6 +11,7 @@ import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.enums.TipoAccion;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.repositories.UsuarioRepo;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class UsuarioServiceImp {
@@ -31,7 +33,7 @@ public class UsuarioServiceImp {
 
 
     public void registrarUsuario(@Valid DatosUsuario datosUsuario) throws Exception {
-        System.out.println("=== INICIO registrarUsuario ===");
+        log.info("Iniciando registro de usuario: {}", datosUsuario.getUsuario());
         Usuario usuario = Usuario.builder()
                 .usuario(datosUsuario.getUsuario())
                 .clave(datosUsuario.getClave())
@@ -43,12 +45,11 @@ public class UsuarioServiceImp {
             if (usuarioRepo.findById(datosUsuario.getUsuario()).isPresent()) {
                 throw new Exception("El usuario ya existe");
             }
-            System.out.println("Se creo el usuairo");
+            log.debug("Usuario creado, guardando en base de datos");
             usuarioRepo.save(usuario);
-            System.out.println("Se guardo el usuario");
+            log.info("Usuario guardado exitosamente: {}", usuario.getUsuario());
         } catch (Exception e) {
-            System.out.println("ERROR guardando usuario: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error guardando usuario {}: {}", datosUsuario.getUsuario(), e.getMessage(), e);
             throw e;
         }
 
@@ -67,13 +68,12 @@ public class UsuarioServiceImp {
         );
         try {
             eventoPublisher.publicar(evento);
-            System.out.println("El evento fue publicado");
+            log.info("Evento de registro publicado para usuario: {}", usuario.getUsuario());
         } catch (Exception e) {
-            System.out.println("ERROR publicando evento: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error publicando evento para usuario {}: {}", usuario.getUsuario(), e.getMessage(), e);
             throw e;
         }
-        System.out.println("=== FIN registrarUsuario ===");
+        log.info("Registro de usuario completado: {}", usuario.getUsuario());
     }
 
     public void cambiarClave(CambioClaveDTO datos) throws Exception {
@@ -148,31 +148,27 @@ public class UsuarioServiceImp {
 
     public void enviarCodigoRecuperacion(@Valid String nombreUsuario) throws Exception {
         try {
-            System.out.println("=== INICIO enviarCodigoRecuperacion ===");
-            System.out.println("Buscando usuario: " + nombreUsuario);
+            log.info("Iniciando proceso de recuperación de clave para usuario: {}", nombreUsuario);
 
             Optional<Usuario> usuarioEncontrado = usuarioRepo.findById(nombreUsuario);
             if (usuarioEncontrado.isPresent()) {
                 Usuario usuario = usuarioEncontrado.get();
-                System.out.println("Usuario encontrado: " + usuario.getUsuario() + ", Email: " + usuario.getCorreo());
-                System.out.println("Rol del usuario: " + usuario.getRol());
-                System.out.println("CodigoValidacion inicial: " + usuario.getCodigoValidacion());
+                log.debug("Usuario encontrado: {}, Email: {}, Rol: {}", 
+                    usuario.getUsuario(), usuario.getCorreo(), usuario.getRol());
 
                 String codigo = generarCodigoValidacion();
-                System.out.println("Código generado: " + codigo);
+                log.debug("Código de recuperación generado");
 
                 try {
                     // Verificar si codigoValidacion existe, si no, crearlo
-
-                    System.out.println("CodigoValidacion es null, creando uno nuevo...");
+                    log.debug("Estableciendo código de validación");
                     usuario.setCodigoValidacion(CodigoValidacion.builder()
                             .codigo(codigo)
                             .fechaCreacion(LocalDateTime.now())
                             .build());
-                    System.out.println("Código establecido en CodigoValidacion");
+                    log.debug("Código establecido correctamente");
                 } catch (Exception e) {
-                    System.out.println("ERROR al establecer código: " + e.getMessage());
-                    e.printStackTrace();
+                    log.error("Error al establecer código de validación: {}", e.getMessage(), e);
                     throw e;
                 }
                 /* 
@@ -187,12 +183,11 @@ public class UsuarioServiceImp {
 
                 try {
                     // Guardar el usuario con el código de validación actualizado
-                    System.out.println("Intentando guardar usuario...");
+                    log.debug("Guardando usuario con código de validación");
                     usuarioRepo.save(usuario);
-                    System.out.println("Usuario guardado exitosamente con código de validación");
+                    log.info("Usuario guardado exitosamente con código de validación");
                 } catch (Exception e) {
-                    System.out.println("ERROR al guardar usuario: " + e.getMessage());
-                    e.printStackTrace();
+                    log.error("Error al guardar usuario {}: {}", nombreUsuario, e.getMessage(), e);
                     throw e;
                 }
 
@@ -224,15 +219,13 @@ public class UsuarioServiceImp {
                     throw e;
                 }*/
 
-                System.out.println("=== FIN enviarCodigoRecuperacion - EXITOSO ===");
+                log.info("Proceso de recuperación de clave completado para usuario: {}", nombreUsuario);
             } else {
-                System.out.println("Usuario NO encontrado en la base de datos");
+                log.warn("Usuario no encontrado en la base de datos: {}", nombreUsuario);
                 throw new UsuarioNotFoundException(Constants.MSG_USUARIO_NO_EXISTENTE);
             }
         } catch (Exception e) {
-            System.out.println("=== ERROR en enviarCodigoRecuperacion ===");
-            System.out.println("Mensaje de error: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error en proceso de recuperación de clave para {}: {}", nombreUsuario, e.getMessage(), e);
             throw e;
         }
     }
@@ -285,9 +278,8 @@ public class UsuarioServiceImp {
     }
 
     private Map<String, Object> buildClaims(Usuario usuario) {
-        System.out.println("USUARIO: " + usuario.getUsuario());
-        System.out.println("CORREO: " + usuario.getCorreo());
-        System.out.println("ROL: " + usuario.getRol());
+        log.debug("Construyendo claims para usuario: {}, correo: {}, rol: {}", 
+            usuario.getUsuario(), usuario.getCorreo(), usuario.getRol());
         return Map.of(
                 "usuario", usuario.getUsuario(),
                 "correo", usuario.getCorreo(),

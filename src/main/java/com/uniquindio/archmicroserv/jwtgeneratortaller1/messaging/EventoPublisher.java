@@ -1,9 +1,11 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.messaging;
 
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.EventoDominio;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class EventoPublisher {
 
@@ -14,14 +16,15 @@ public class EventoPublisher {
     }
 
     public void publicar(EventoDominio evento) {
-        System.out.println("Publicando evento: " + evento);
-        System.out.println("Veamos el routing key");
-        System.out.println(evento.tipoAccion().routingKey());
+        log.info("Publicando evento de dominio: tipo={}, id={}", 
+            evento.tipoAccion(), evento.id());
+        log.debug("Routing key: {}", evento.tipoAccion().routingKey());
         rabbitTemplate.convertAndSend(
                 "dominio.events",                // exchange
                 evento.tipoAccion().routingKey(), // routing key desde enum
                 evento                           // body (serializado como JSON)
         );
+        log.debug("Evento publicado exitosamente en exchange 'dominio.events'");
     }
 }
 
