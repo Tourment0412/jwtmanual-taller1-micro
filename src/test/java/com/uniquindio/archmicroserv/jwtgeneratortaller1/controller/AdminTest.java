@@ -1,6 +1,5 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.exceptions.UsuarioNotFoundException;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.Usuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
@@ -16,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -43,8 +41,6 @@ class AdminTest {
 
     @InjectMocks
     private Admin adminController;
-
-    private ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {

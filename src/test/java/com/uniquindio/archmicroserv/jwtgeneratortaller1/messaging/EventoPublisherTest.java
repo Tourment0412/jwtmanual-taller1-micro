@@ -14,8 +14,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -140,10 +138,15 @@ class EventoPublisherTest {
         eventoPublisher.publicar(evento2);
 
         // Assert
-        verify(rabbitTemplate, times(2)).convertAndSend(
-                anyString(),
-                anyString(),
-                any(EventoDominio.class)
+        verify(rabbitTemplate, times(1)).convertAndSend(
+                eq("dominio.events"),
+                eq(TipoAccion.REGISTRO_USUARIO.routingKey()),
+                eq(evento1)
+        );
+        verify(rabbitTemplate, times(1)).convertAndSend(
+                eq("dominio.events"),
+                eq(TipoAccion.AUTENTICACION.routingKey()),
+                eq(evento2)
         );
     }
 }
