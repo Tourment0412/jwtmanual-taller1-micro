@@ -49,9 +49,9 @@ class EventoPublisherTest {
 
         // Assert
         verify(rabbitTemplate, times(1)).convertAndSend(
-                eq("dominio.events"),
-                eq(TipoAccion.REGISTRO_USUARIO.routingKey()),
-                eq(evento)
+                "dominio.events",
+                TipoAccion.REGISTRO_USUARIO.routingKey(),
+                evento
         );
     }
 
@@ -71,9 +71,9 @@ class EventoPublisherTest {
 
         // Assert
         verify(rabbitTemplate, times(1)).convertAndSend(
-                eq("dominio.events"),
-                eq(TipoAccion.AUTENTICACION.routingKey()),
-                eq(evento)
+                "dominio.events",
+                TipoAccion.AUTENTICACION.routingKey(),
+                evento
         );
     }
 
@@ -93,9 +93,9 @@ class EventoPublisherTest {
 
         // Assert
         verify(rabbitTemplate, times(1)).convertAndSend(
-                eq("dominio.events"),
-                eq(TipoAccion.RECUPERAR_PASSWORD.routingKey()),
-                eq(evento)
+                "dominio.events",
+                TipoAccion.RECUPERAR_PASSWORD.routingKey(),
+                evento
         );
     }
 
@@ -115,9 +115,9 @@ class EventoPublisherTest {
 
         // Assert
         verify(rabbitTemplate, times(1)).convertAndSend(
-                eq("dominio.events"),
-                eq(TipoAccion.AUTENTICACION_CLAVES.routingKey()),
-                eq(evento)
+                "dominio.events",
+                TipoAccion.AUTENTICACION_CLAVES.routingKey(),
+                evento
         );
     }
 
@@ -139,14 +139,14 @@ class EventoPublisherTest {
 
         // Assert
         verify(rabbitTemplate, times(1)).convertAndSend(
-                eq("dominio.events"),
-                eq(TipoAccion.REGISTRO_USUARIO.routingKey()),
-                eq(evento1)
+                "dominio.events",
+                TipoAccion.REGISTRO_USUARIO.routingKey(),
+                evento1
         );
         verify(rabbitTemplate, times(1)).convertAndSend(
-                eq("dominio.events"),
-                eq(TipoAccion.AUTENTICACION.routingKey()),
-                eq(evento2)
+                "dominio.events",
+                TipoAccion.AUTENTICACION.routingKey(),
+                evento2
         );
     }
 }
