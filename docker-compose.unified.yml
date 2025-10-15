@@ -78,7 +78,7 @@ services:
 
   notifications-api:
     build:
-      context: .
+      context: ../notifications-service-micro
     container_name: notifications-service-micro
     env_file:
       - .env
@@ -101,7 +101,7 @@ services:
       - "8080:8080"
 
   notifications-worker:
-    build: .
+    build: ../notifications-service-micro
     container_name: notifications-worker
     command: python -m app.worker
     env_file:
@@ -116,7 +116,7 @@ services:
     restart: unless-stopped
 
   notifications-scheduler:
-    build: .
+    build: ../notifications-service-micro
     container_name: notifications-scheduler
     command: python -m app.scheduler
     env_file:
