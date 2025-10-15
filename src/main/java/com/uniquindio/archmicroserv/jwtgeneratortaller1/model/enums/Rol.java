@@ -2,11 +2,10 @@ package com.uniquindio.archmicroserv.jwtgeneratortaller1.model.enums;
 
 import lombok.Getter;
 
-@Getter
 public enum Rol {
     ADMIN("ADMIN"), CLIENTE("CLIENTE");
 
-    private String nombre;
+    private final String nombre;
 
     /**
      * Metodo contructor de los roles
@@ -14,6 +13,14 @@ public enum Rol {
      */
      Rol(String nombre) {
          this.nombre = nombre;
+     }
+     
+     /**
+      * Metodo getter para el nombre
+      * @return nombre del rol
+      */
+     public String getNombre() {
+         return nombre;
      }
      
      /**
