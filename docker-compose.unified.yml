@@ -92,6 +92,8 @@ services:
       AMQP_EXCHANGE_TYPE: topic
       MESSAGING_DECLARE_INFRA: "false"
       DB_URL: postgresql+psycopg2://notifications:notifications@postgres-notifications:5432/notifications
+      ENV: dev
+      STACK: logging
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -99,6 +101,8 @@ services:
         condition: service_healthy
     ports:
       - "8080:8080"
+    networks:
+      - observability
 
   notifications-worker:
     build: ../notifications-service-micro
@@ -108,12 +112,16 @@ services:
       - .env
     environment:
       - TZ=America/Bogota
+      - ENV=dev
+      - STACK=logging
     depends_on:
       rabbitmq:
         condition: service_healthy
       postgres_notifications:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - observability
 
   notifications-scheduler:
     build: ../notifications-service-micro
@@ -121,10 +129,16 @@ services:
     command: python -m app.scheduler
     env_file:
       - .env
+    environment:
+      - TZ=America/Bogota
+      - ENV=dev
+      - STACK=logging
     depends_on:
       rabbitmq:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - observability
 
   domain-service:
     build:
@@ -157,6 +171,8 @@ services:
       LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_RABBIT: DEBUG
       SPRING_RABBITMQ_PUBLISHER_CONFIRM_TYPE: simple
       SPRING_RABBITMQ_PUBLISHER_RETURNS: "true"
+      ENV: dev
+      STACK: logging
     healthcheck:
       test: ["CMD-SHELL", "exit 0"]
       interval: 10s
@@ -168,6 +184,8 @@ services:
         condition: service_healthy
       postgres_domain:
         condition: service_healthy
+    networks:
+      - observability
 
   orchestrator-db:
     image: postgres:16-alpine
@@ -200,8 +218,12 @@ services:
       PORT: 3000
       DATABASE_URL: postgresql://user:pass@postgres-orchestrator:5432/mydb?schema=public
       RABBITMQ_URL: amqp://orchestrator_user:orch_pass@rabbitmq:5672/foro
+      ENV: dev
+      STACK: logging
     ports:
       - "3000:3000"
+    networks:
+      - observability
 
   automation-tests:
     build:
@@ -277,6 +299,62 @@ services:
       timeout: 5s
       retries: 5
 
+  loki:
+    image: grafana/loki:2.9.8
+    container_name: loki
+    command: -config.file=/etc/loki/config/loki-config.yml
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki-data:/loki
+      - ../observability/loki/config:/etc/loki/config:ro,Z
+    networks:
+      - observability
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3100/ready"]
+      interval: 20s
+      timeout: 3s
+      retries: 10
+
+  fluentd:
+    build:
+      context: ../observability/fluentd
+      dockerfile: Dockerfile
+    container_name: fluentd
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    volumes:
+      - ../observability/fluentd/fluent.conf:/fluentd/etc/fluent.conf:ro
+      - /var/log/journal:/var/log/journal:ro
+      - /run/log/journal:/run/log/journal:ro
+      - /etc/machine-id:/etc/machine-id:ro
+    security_opt:
+      - label=disable
+    environment:
+      - FLUENTD_PROMETHEUS=true
+      - FLUENTD_PROMETHEUS_PORT=24231
+    depends_on:
+      - loki
+    networks:
+      - observability
+
+  grafana:
+    image: grafana/grafana:10.4.5
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ../observability/grafana/provisioning:/etc/grafana/provisioning:ro,Z
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - loki
+    networks:
+      - observability
+
 volumes:
   pgdata_notifications:
   pgdata_domain:
@@ -287,11 +365,15 @@ volumes:
   sonarqube_extensions:
   sonarqube_logs:
   postgresql:
+  loki-data:
+  grafana-data:
 
 # Root network definition to satisfy services referencing 'ci_cd_network'
 networks:
   ci_cd_network:
     name: ci_cd_network
+    driver: bridge
+  observability:
     driver: bridge
 
 

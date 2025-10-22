@@ -80,5 +80,5 @@ echo "💡 El servidor está ejecutándose. Presiona Ctrl+C para detener."
 echo "📋 Para acceder manualmente: http://localhost:$PORT/"
 echo ""
 
-# Iniciar servidor web
-python3 -m http.server $PORT
+# Iniciar servidor web (redirigir stderr para ocultar BrokenPipeError)
+python3 -m http.server $PORT 2>&1 | grep -v "BrokenPipeError" | grep -v "Traceback" | grep -v "Exception occurred"
