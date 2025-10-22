@@ -164,6 +164,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
+		<!-- Spring Boot Actuator para health checks -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
 		<!-- Base de datos en memoria para pruebas -->
 		<dependency>
 			<groupId>com.h2database</groupId>
