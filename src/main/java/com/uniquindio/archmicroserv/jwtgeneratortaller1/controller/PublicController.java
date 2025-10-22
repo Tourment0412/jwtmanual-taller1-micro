@@ -6,8 +6,10 @@ import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveRequestDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.EnviarCodigoUsuario;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.HealthCheckDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.MessageDTO;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.TokenDTO;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.HealthService;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.LoginRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,6 +23,7 @@ import org.hibernate.exception.SQLGrammarException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,9 +38,11 @@ public class PublicController {
 
 
     private final UsuarioServiceImp usuarioService;
+    private final HealthService healthService;
 
-    public PublicController(JWTUtils jwtUtils, UsuarioServiceImp usuarioService) {
+    public PublicController(JWTUtils jwtUtils, UsuarioServiceImp usuarioService, HealthService healthService) {
         this.usuarioService = usuarioService;
+        this.healthService = healthService;
     }
 
     @Tag(name = "Registro de usuarios", description = "Registra un nuevo usuario")
@@ -345,6 +350,114 @@ public class PublicController {
                         .body(new MessageDTO<>(true, "Código de verificación incorrecto o expirado"));
             }
         }
+    }
+
+    @Tag(name = "Health Check", description = "Endpoints de salud de la aplicación")
+    @Operation(
+            summary = "Estado de salud general",
+            description = "Retorna el estado de salud general de la aplicación y todos sus componentes (base de datos, RabbitMQ, aplicación)"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Estado de salud obtenido exitosamente",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = HealthCheckDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"status\": \"UP\", \"checks\": [{\"name\": \"database\", \"status\": \"UP\", \"data\": {\"database\": \"PostgreSQL\", \"status\": \"Available\"}}, {\"name\": \"application\", \"status\": \"UP\", \"data\": {\"application\": \"JWT Generator Service\", \"status\": \"Running\"}}, {\"name\": \"rabbitmq\", \"status\": \"UP\", \"data\": {\"messaging\": \"RabbitMQ\", \"status\": \"Connected\"}}]}"
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Servicio no disponible - uno o más componentes no están funcionando",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = HealthCheckDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"status\": \"DOWN\", \"checks\": [{\"name\": \"database\", \"status\": \"DOWN\", \"data\": {\"database\": \"PostgreSQL\", \"error\": \"Connection refused\"}}]}"
+                            )
+                    )
+            )
+    })
+    @GetMapping("/health")
+    public ResponseEntity<HealthCheckDTO> health() {
+        HealthCheckDTO health = healthService.getHealth();
+        HttpStatus status = "UP".equals(health.status()) ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;
+        return ResponseEntity.status(status).body(health);
+    }
+
+    @Tag(name = "Health Check", description = "Endpoints de salud de la aplicación")
+    @Operation(
+            summary = "Estado de preparación (Readiness)",
+            description = "Indica si la aplicación está lista para recibir tráfico. Verifica que los componentes críticos (base de datos, RabbitMQ) estén disponibles."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Aplicación lista para recibir tráfico",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = HealthCheckDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"status\": \"UP\", \"checks\": [{\"name\": \"database\", \"status\": \"UP\", \"data\": {\"database\": \"PostgreSQL\", \"status\": \"Available\"}}, {\"name\": \"rabbitmq\", \"status\": \"UP\", \"data\": {\"messaging\": \"RabbitMQ\", \"status\": \"Connected\"}}]}"
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Aplicación no lista - componentes críticos no disponibles",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = HealthCheckDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"status\": \"DOWN\", \"checks\": [{\"name\": \"database\", \"status\": \"DOWN\", \"data\": {\"database\": \"PostgreSQL\", \"error\": \"Connection timeout\"}}]}"
+                            )
+                    )
+            )
+    })
+    @GetMapping("/health/ready")
+    public ResponseEntity<HealthCheckDTO> readiness() {
+        HealthCheckDTO readiness = healthService.getReadiness();
+        HttpStatus status = "UP".equals(readiness.status()) ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;
+        return ResponseEntity.status(status).body(readiness);
+    }
+
+    @Tag(name = "Health Check", description = "Endpoints de salud de la aplicación")
+    @Operation(
+            summary = "Estado de vivacidad (Liveness)",
+            description = "Indica si la aplicación está ejecutándose correctamente. Útil para que Kubernetes determine si debe reiniciar el contenedor."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Aplicación en ejecución",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = HealthCheckDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"status\": \"UP\", \"checks\": [{\"name\": \"application\", \"status\": \"UP\", \"data\": {\"application\": \"JWT Generator Service\", \"status\": \"Running\"}}]}"
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "Aplicación no responde correctamente",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = HealthCheckDTO.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                    value = "{\"status\": \"DOWN\", \"checks\": [{\"name\": \"application\", \"status\": \"DOWN\", \"data\": {\"error\": \"Application not responding\"}}]}"
+                            )
+                    )
+            )
+    })
+    @GetMapping("/health/live")
+    public ResponseEntity<HealthCheckDTO> liveness() {
+        HealthCheckDTO liveness = healthService.getLiveness();
+        HttpStatus status = "UP".equals(liveness.status()) ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;
+        return ResponseEntity.status(status).body(liveness);
     }
 
 

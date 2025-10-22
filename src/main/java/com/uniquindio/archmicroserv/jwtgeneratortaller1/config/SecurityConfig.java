@@ -18,7 +18,10 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/v3/api-docs/**",
                     "/swagger-ui/**",
-                    "/swagger-ui.html"
+                    "/swagger-ui.html",
+                    "/v1/health",
+                    "/v1/health/ready",
+                    "/v1/health/live"
                 ).permitAll()
                 // Cualquier otra ruta se maneja por tu TokenFilter
                 .anyRequest().permitAll()
