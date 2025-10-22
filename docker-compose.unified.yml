@@ -39,6 +39,11 @@ services:
       - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro,Z
       # definitions.json: usuarios, vhosts, exchanges, colas y bindings predefinidos
       - ./definitions.json:/etc/rabbitmq/definitions.json:ro,Z
+    networks:
+      observability:
+        aliases:
+          - postgres_notifications
+          - postgres-notifications
 
 
 
@@ -58,6 +63,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - observability
 
   postgres_domain:
     image: postgres:16-alpine
@@ -75,6 +82,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - observability
 
   notifications-api:
     build:
@@ -91,7 +100,7 @@ services:
       AMQP_EXCHANGE: orquestador.events
       AMQP_EXCHANGE_TYPE: topic
       MESSAGING_DECLARE_INFRA: "false"
-      DB_URL: postgresql+psycopg2://notifications:notifications@postgres-notifications:5432/notifications
+      DB_URL: postgresql+psycopg2://notifications:notifications@postgres_notifications:5432/notifications
       ENV: dev
       STACK: logging
     depends_on:
@@ -157,7 +166,7 @@ services:
       HIBERNATE_SQL_LOG: INFO
       HIBERNATE_BINDER_LOG: INFO
       APP_LOG_LEVEL: INFO
-      JWT_SECRET: secretsecretsecretsecretsecretsecretsecretsecret
+      JWT_SECRET: secretsecretsecretsecretsecretsecretsecretsecretsecret
       JWT_EXPIRATION: "3600"
       JWT_ISSUER: ingesis.uniquindio.edu.co
       # RabbitMQ
@@ -203,6 +212,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - observability
 
   orchestrator-service:
     build:
@@ -221,7 +232,7 @@ services:
       ENV: dev
       STACK: logging
     ports:
-      - "3000:3000"
+      - "3001:3000"
     networks:
       - observability
 
@@ -230,11 +241,12 @@ services:
       context: ../automation-tests
     container_name: automation-tests
     environment:
-      - AUT_TESTS_BASE_URL=http://jwtmanual-taller1-micro:8080
+      - AUT_TESTS_BASE_URL=http://domain-service:8080
     depends_on:
       - domain-service
     networks:
       - ci_cd_network
+      - observability
 
   jenkins:
     build: ../cicdjenkins/jenkins
@@ -283,6 +295,8 @@ services:
     depends_on:
       postgres-sonar:
         condition: service_healthy
+    networks:
+      - observability
 
   postgres-sonar:
     image: postgres:15
@@ -298,6 +312,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - observability
 
   loki:
     image: grafana/loki:2.9.8
