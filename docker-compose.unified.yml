@@ -112,6 +112,8 @@ services:
       - "8080:8080"
     networks:
       - observability
+    logging:
+      driver: k8s-file
 
   notifications-worker:
     build: ../notifications-service-micro
@@ -131,6 +133,8 @@ services:
     restart: unless-stopped
     networks:
       - observability
+    logging:
+      driver: k8s-file
 
   notifications-scheduler:
     build: ../notifications-service-micro
@@ -148,6 +152,8 @@ services:
     restart: unless-stopped
     networks:
       - observability
+    logging:
+      driver: k8s-file
 
   domain-service:
     build:
@@ -195,6 +201,8 @@ services:
         condition: service_healthy
     networks:
       - observability
+    logging:
+      driver: k8s-file
 
   orchestrator-db:
     image: postgres:16-alpine
@@ -235,6 +243,8 @@ services:
       - "3001:3000"
     networks:
       - observability
+    logging:
+      driver: k8s-file
 
   automation-tests:
     build:
@@ -337,6 +347,7 @@ services:
       context: ../observability/fluentd
       dockerfile: Dockerfile
     container_name: fluentd
+    user: "0:0"
     ports:
       - "24224:24224"
       - "24224:24224/udp"
@@ -344,7 +355,9 @@ services:
       - ../observability/fluentd/fluent.conf:/fluentd/etc/fluent.conf:ro
       - /var/log/journal:/var/log/journal:ro
       - /run/log/journal:/run/log/journal:ro
+      - /run/user/1000/journal:/run/user/1000/journal:ro
       - /etc/machine-id:/etc/machine-id:ro
+      - /home/miguel/.local/share/containers:/host/containers:ro
     security_opt:
       - label=disable
     environment:
@@ -354,6 +367,8 @@ services:
       - loki
     networks:
       - observability
+    group_add:
+      - "190"
 
   grafana:
     image: grafana/grafana:10.4.5
