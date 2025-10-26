@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.time.Instant;
 
 /**
  * Health check para verificar la disponibilidad de la base de datos
@@ -13,6 +14,7 @@ import java.sql.Connection;
 @Component("database")
 public class DatabaseHealthIndicator implements HealthIndicator {
 
+    private static final Instant START_TIME = Instant.now();
     private final DataSource dataSource;
 
     public DatabaseHealthIndicator(DataSource dataSource) {
@@ -25,7 +27,8 @@ public class DatabaseHealthIndicator implements HealthIndicator {
             if (connection.isValid(1)) {
                 return Health.up()
                         .withDetail("database", "PostgreSQL")
-                        .withDetail("status", "Available")
+                        .withDetail("status", "READY")
+                        .withDetail("from", START_TIME.toString())
                         .build();
             } else {
                 return Health.down()

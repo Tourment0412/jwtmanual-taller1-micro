@@ -63,23 +63,19 @@ public class HealthService {
         
         // Para readiness, verificamos componentes críticos: base de datos y RabbitMQ
         Health dbHealth = healthIndicators.get("database").health();
-        Health rabbitHealth = healthIndicators.get("rabbitmq").health();
+        
+        // Crear un check de Readiness según el formato especificado
+        Map<String, Object> data = new HashMap<>();
+        data.put("from", dbHealth.getDetails().get("from"));
+        data.put("status", "READY");
         
         checks.add(new HealthCheckDTO.HealthCheck(
-                "database",
+                "Readiness check",
                 dbHealth.getStatus().getCode(),
-                dbHealth.getDetails()
-        ));
-        
-        checks.add(new HealthCheckDTO.HealthCheck(
-                "rabbitmq",
-                rabbitHealth.getStatus().getCode(),
-                rabbitHealth.getDetails()
+                data
         ));
 
-        boolean ready = "UP".equals(dbHealth.getStatus().getCode()) && 
-                       "UP".equals(rabbitHealth.getStatus().getCode());
-        
+        boolean ready = "UP".equals(dbHealth.getStatus().getCode());
         String overallStatus = ready ? "UP" : "DOWN";
         return new HealthCheckDTO(overallStatus, checks);
     }
@@ -94,10 +90,15 @@ public class HealthService {
         // Para liveness, solo verificamos que la aplicación esté ejecutándose
         Health appHealth = healthIndicators.get("application").health();
         
+        // Crear un check de Liveness según el formato especificado
+        Map<String, Object> data = new HashMap<>();
+        data.put("from", appHealth.getDetails().get("from"));
+        data.put("status", "ALIVE");
+        
         checks.add(new HealthCheckDTO.HealthCheck(
-                "application",
+                "Liveness check",
                 appHealth.getStatus().getCode(),
-                appHealth.getDetails()
+                data
         ));
 
         String overallStatus = appHealth.getStatus().getCode();
