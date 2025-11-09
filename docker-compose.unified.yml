@@ -87,7 +87,7 @@ services:
 
   notifications-api:
     build:
-      context: ../notifications-service-micro
+      context: ./notifications-service-micro
     container_name: notifications-service-micro
     env_file:
       - .env
@@ -116,7 +116,7 @@ services:
       driver: k8s-file
 
   notifications-worker:
-    build: ../notifications-service-micro
+    build: ./notifications-service-micro
     container_name: notifications-worker
     command: python -m app.worker
     env_file:
@@ -137,7 +137,7 @@ services:
       driver: k8s-file
 
   notifications-scheduler:
-    build: ../notifications-service-micro
+    build: ./notifications-service-micro
     container_name: notifications-scheduler
     command: python -m app.scheduler
     env_file:
@@ -157,7 +157,7 @@ services:
 
   domain-service:
     build:
-      context: .
+      context: ./jwtmanual-taller1-micro
     container_name: jwtmanual-taller1-micro
     ports:
       - "8081:8080"
@@ -225,7 +225,7 @@ services:
 
   gestion-perfil-service:
     build:
-      context: ../gestion-perfil-micro
+      context: ./gestion-perfil-micro
     container_name: gestion-perfil-service
     ports:
       - "8084:8080"
@@ -284,7 +284,7 @@ services:
 
   orchestrator-service:
     build:
-      context: ../orquestador-solicitudes-micro
+      context: ./orquestador-solicitudes-micro
     container_name: orquestador-solicitudes-micro
     depends_on:
       rabbitmq:
@@ -307,7 +307,7 @@ services:
 
   automation-tests:
     build:
-      context: ../automation-tests
+      context: ./automation-tests
     container_name: automation-tests
     environment:
       - AUT_TESTS_BASE_URL=http://domain-service:8080
@@ -322,7 +322,7 @@ services:
 
   health-check:
     build:
-      context: ../health-check-app-micro
+      context: ./health-check-app-micro
     container_name: health-check-app-micro
     ports:
       - "8082:8080"
@@ -341,7 +341,7 @@ services:
       driver: k8s-file
 
   jenkins:
-    build: ../cicdjenkins/jenkins
+    build: ./cicdjenkins/jenkins
     container_name: jenkins
     ports:
       - "8083:8080"
@@ -415,7 +415,7 @@ services:
       - "3100:3100"
     volumes:
       - loki-data:/loki
-      - ../observability/loki/config:/etc/loki/config:ro,Z
+      - ./observability/loki/config:/etc/loki/config:ro,Z
     networks:
       - observability
     healthcheck:
@@ -426,7 +426,7 @@ services:
 
   fluentd:
     build:
-      context: ../observability/fluentd
+      context: ./observability/fluentd
       dockerfile: Dockerfile
     container_name: fluentd
     user: "0:0"
@@ -434,7 +434,7 @@ services:
       - "24224:24224"
       - "24224:24224/udp"
     volumes:
-      - ../observability/fluentd/fluent.conf:/fluentd/etc/fluent.conf:ro
+      - ./observability/fluentd/fluent.conf:/fluentd/etc/fluent.conf:ro
       - /var/log/journal:/var/log/journal:ro
       - /run/log/journal:/run/log/journal:ro
       - /run/user/1000/journal:/run/user/1000/journal:ro
@@ -461,7 +461,7 @@ services:
       - "3000:3000"
     volumes:
       - grafana-data:/var/lib/grafana
-      - ../observability/grafana/provisioning:/etc/grafana/provisioning:ro,Z
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro,Z
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin

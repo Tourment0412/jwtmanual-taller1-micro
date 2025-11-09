@@ -199,7 +199,7 @@ cd ~/Documentos/GitHub/jwtmanual-taller1-micro
 chmod +x init-sonarqube.sh
 
 # Ejecutar el script (cambia contraseña y genera token)
-./init-sonarqube.sh
+./scripts/init-sonarqube.sh
 ```
 
 **Salida esperada:**
@@ -220,7 +220,7 @@ cd ~/Documentos/GitHub/jwtmanual-taller1-micro
 chmod +x configure-sonarqube-webhook.sh
 
 # Ejecutar configuración del webhook
-./configure-sonarqube-webhook.sh
+./scripts/configure-sonarqube-webhook.sh
 ```
 
 **Salida esperada:**
@@ -431,7 +431,7 @@ grep "sonar-token" -A 3 jenkins.yaml
 
 # 3. Regenerar token si es necesario
 cd ~/Documentos/GitHub/jwtmanual-taller1-micro
-./init-sonarqube.sh
+./scripts/init-sonarqube.sh
 
 # 4. Reconstruir Jenkins
 docker compose -f docker-compose.unified.yml up -d --build jenkins
@@ -504,7 +504,7 @@ curl -u admin:Admin123456! http://localhost:9001/api/webhooks/list
 
 # 2. Reconfigurar webhook si no existe
 cd ~/Documentos/GitHub/jwtmanual-taller1-micro
-./configure-sonarqube-webhook.sh
+./scripts/configure-sonarqube-webhook.sh
 
 # 3. Verificar conectividad Jenkins ← SonarQube
 docker compose -f docker-compose.unified.yml exec sonar curl -X POST http://jenkins:8080/sonarqube-webhook/

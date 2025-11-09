@@ -361,7 +361,7 @@ htmlpublisher:latest
 
 ### **Ver Reportes de Allure Localmente:**
 ```bash
-./show-allure-reports.sh [BUILD_NUMBER]
+./scripts/show-allure-reports.sh [BUILD_NUMBER]
 ```
 - Copia reportes desde Jenkins
 - Inicia servidor HTTP local
@@ -369,14 +369,14 @@ htmlpublisher:latest
 
 ### **Configurar Webhook de SonarQube:**
 ```bash
-./configure-sonarqube-webhook.sh
+./scripts/configure-sonarqube-webhook.sh
 ```
 - Configura webhook SonarQube → Jenkins
 - Necesario para Quality Gate sin timeout
 
 ### **Inicializar SonarQube:**
 ```bash
-./init-sonarqube.sh
+./scripts/init-sonarqube.sh
 ```
 - Cambia password de admin
 - Genera token de acceso
@@ -448,7 +448,7 @@ podman exec automation-tests env | grep AUT_TESTS_BASE_URL
 podman exec jenkins cat /var/jenkins_home/workspace/jwtmanual-pipeline/automation-tests/pom.xml | grep allure
 
 # Copiar reportes manualmente
-./show-allure-reports.sh 1
+./scripts/show-allure-reports.sh 1
 ```
 
 ### **SonarQube Analysis falla:**

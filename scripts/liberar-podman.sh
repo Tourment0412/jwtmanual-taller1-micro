@@ -30,7 +30,7 @@ echo "4️⃣ Verificando acceso a Podman..."
 if podman ps > /dev/null 2>&1; then
     echo "   ✅ Podman está accesible ahora"
     echo ""
-    echo "✅ Bloqueo liberado. Puedes ejecutar limpiar-y-reconstruir.sh ahora"
+    echo "✅ Bloqueo liberado. Puedes ejecutar limpiar-todo.sh desde la raíz del workspace ahora"
 else
     echo "   ⚠️  Podman aún no responde"
     echo ""

@@ -215,17 +215,17 @@ stage('Quality Gate') {
 
 ### **Inicialización de SonarQube:**
 ```bash
-./init-sonarqube.sh
+./scripts/init-sonarqube.sh
 ```
 
 ### **Configurar Webhook de SonarQube:**
 ```bash
-./configure-sonarqube-webhook.sh
+./scripts/configure-sonarqube-webhook.sh
 ```
 
 ### **Ver Reportes de Allure Localmente:**
 ```bash
-./show-allure-reports.sh [BUILD_NUMBER]
+./scripts/show-allure-reports.sh [BUILD_NUMBER]
 ```
 
 ### **Acceder a SonarQube:**
@@ -287,7 +287,7 @@ podman exec jenkins curl -s http://sonarqube:9000/api/system/status
 curl -s -u "admin:Admin123456!" http://localhost:9001/api/webhooks/list
 
 # Si no está configurado, ejecutar:
-./configure-sonarqube-webhook.sh
+./scripts/configure-sonarqube-webhook.sh
 ```
 
 ---
