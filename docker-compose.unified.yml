@@ -220,13 +220,15 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - observability
 
   gestion-perfil-service:
     build:
       context: ../gestion-perfil-micro
     container_name: gestion-perfil-service
     ports:
-      - "8082:8080"
+      - "8084:8080"
     environment:
       TZ: America/Bogota
       # Database configuration
@@ -243,17 +245,23 @@ services:
       # Optional: Debug logging
       LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_AMQP: DEBUG
       LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_RABBIT: DEBUG
+      ENV: dev
+      STACK: logging
     healthcheck:
-      test: ["CMD-SHELL", "exit 0"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
-      start_period: 30s
+      start_period: 60s
     depends_on:
       rabbitmq:
         condition: service_healthy
       postgres_gestion_perfil:
         condition: service_healthy
+    networks:
+      - observability
+    logging:
+      driver: k8s-file
 
   orchestrator-db:
     image: postgres:16-alpine
@@ -308,6 +316,29 @@ services:
     networks:
       - ci_cd_network
       - observability
+    restart: unless-stopped
+    profiles:
+      - testing
+
+  health-check:
+    build:
+      context: ../health-check-app-micro
+    container_name: health-check-app-micro
+    ports:
+      - "8082:8080"
+    environment:
+      - TZ=America/Bogota
+      - ENV=dev
+      - STACK=logging
+      # SMTP Configuration (opcional)
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+    networks:
+      - observability
+    logging:
+      driver: k8s-file
 
   jenkins:
     build: ../cicdjenkins/jenkins
@@ -409,13 +440,15 @@ services:
       - /run/user/1000/journal:/run/user/1000/journal:ro
       - /etc/machine-id:/etc/machine-id:ro
       - /home/miguel/.local/share/containers:/host/containers:ro
+      - fluentd-state:/fluentd/state
     security_opt:
       - label=disable
     environment:
       - FLUENTD_PROMETHEUS=true
       - FLUENTD_PROMETHEUS_PORT=24231
     depends_on:
-      - loki
+      loki:
+        condition: service_healthy
     networks:
       - observability
     group_add:
@@ -450,6 +483,7 @@ volumes:
   postgresql:
   loki-data:
   grafana-data:
+  fluentd-state:
 
 # Root network definition to satisfy services referencing 'ci_cd_network'
 networks:

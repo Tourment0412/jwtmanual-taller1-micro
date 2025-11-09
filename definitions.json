@@ -61,9 +61,9 @@
     {
       "user": "gestorperfil_user",
       "vhost": "foro",
-      "configure": "",
+      "configure": "^gestorperfil\\.queue$",
       "write": "",
-      "read": "^perfil\\..*"
+      "read": "^gestorperfil\\.queue$|^perfil\\..*"
     }
   ],
   "exchanges": [
