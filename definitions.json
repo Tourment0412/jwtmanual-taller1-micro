@@ -19,6 +19,11 @@
       "name": "notifications_user",
       "password": "notif_pass",
       "tags": ""
+    },
+    {
+      "name": "gestorperfil_user",
+      "password": "gestor_pass",
+      "tags": ""
     }
   ],
   "vhosts": [
@@ -52,6 +57,13 @@
       "configure": "",
       "write": "",
       "read": "^notifications\\..*"
+    },
+    {
+      "user": "gestorperfil_user",
+      "vhost": "foro",
+      "configure": "",
+      "write": "",
+      "read": "^perfil\\..*"
     }
   ],
   "exchanges": [
@@ -72,6 +84,12 @@
       "vhost": "foro",
       "type": "topic",
       "durable": true
+    },
+    {
+      "name": "gestorperfil.events",
+      "vhost": "foro",
+      "type": "topic",
+      "durable": true
     }
   ],
   "queues": [
@@ -87,6 +105,11 @@
       "arguments": {
         "x-dead-letter-exchange": "dlx"
       }
+    },
+    {
+      "name": "gestorperfil.queue",
+      "vhost": "foro",
+      "durable": true
     }
   ],
   "bindings": [
@@ -103,6 +126,13 @@
       "destination": "notifications.queue",
       "destination_type": "queue",
       "routing_key": "notifications.*"
+    },
+    {
+      "source": "dominio.events",
+      "vhost": "foro",
+      "destination": "gestorperfil.queue",
+      "destination_type": "queue",
+      "routing_key": "perfil.*"
     }
   ]
 }

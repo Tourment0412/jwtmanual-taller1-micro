@@ -178,8 +178,8 @@ services:
       # RabbitMQ
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: orchestrator_user
-      SPRING_RABBITMQ_PASSWORD: orch_pass
+      SPRING_RABBITMQ_USERNAME: domain_user
+      SPRING_RABBITMQ_PASSWORD: domain_pass
       SPRING_RABBITMQ_VIRTUAL_HOST: foro
       # Depuracion y confirms de publicacion
       LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_AMQP: DEBUG
@@ -203,6 +203,57 @@ services:
       - observability
     logging:
       driver: k8s-file
+
+  postgres_gestion_perfil:
+    image: postgres:16-alpine
+    container_name: postgres-gestion-perfil
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5435:5432"
+    volumes:
+      - pgdata_gestion_perfil:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  gestion-perfil-service:
+    build:
+      context: ../gestion-perfil-micro
+    container_name: gestion-perfil-service
+    ports:
+      - "8082:8080"
+    environment:
+      TZ: America/Bogota
+      # Database configuration
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-gestion-perfil:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      # RabbitMQ configuration
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: gestorperfil_user
+      SPRING_RABBITMQ_PASSWORD: gestor_pass
+      SPRING_RABBITMQ_VIRTUAL_HOST: foro
+      # Optional: Debug logging
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_AMQP: DEBUG
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_RABBIT: DEBUG
+    healthcheck:
+      test: ["CMD-SHELL", "exit 0"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres_gestion_perfil:
+        condition: service_healthy
 
   orchestrator-db:
     image: postgres:16-alpine
@@ -389,6 +440,7 @@ services:
 volumes:
   pgdata_notifications:
   pgdata_domain:
+  pgdata_gestion_perfil:
   pgdata_orchestrator:
   jenkins_home:
   jenkins_m2:
