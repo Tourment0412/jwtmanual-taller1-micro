@@ -9,6 +9,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.util.Objects;
+
 @SpringBootApplication
 public class Jwtgeneratortaller1Application {
 
@@ -19,6 +21,7 @@ public class Jwtgeneratortaller1Application {
     }
 
     @Bean
+    @SuppressWarnings("unused") // Spring Boot automatically executes CommandLineRunner beans
     CommandLineRunner rabbitHealth(RabbitTemplate rabbitTemplate) {
         return args -> {
             try {
@@ -36,6 +39,6 @@ public class Jwtgeneratortaller1Application {
     // Forzar el uso del converter JSON si está definido
     @Bean
     public java.util.function.Consumer<RabbitTemplate> rabbitTemplateCustomizer(MessageConverter messageConverter) {
-        return template -> template.setMessageConverter(messageConverter);
+        return template -> template.setMessageConverter(Objects.requireNonNull(messageConverter, "MessageConverter must not be null"));
     }
 }
