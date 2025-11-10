@@ -239,12 +239,15 @@
 				<version>3.2.5</version>
 				<configuration>
 					<includes>
-						<!-- Descubre automáticamente las pruebas (incluye runner de Cucumber) -->
+						<!-- Descubre automáticamente las pruebas (excluye tests de aceptación) -->
 						<include>**/*Test.java</include>
 						<include>**/*Tests.java</include>
 						<include>**/*IT.java</include>
-						<include>**/*Cucumber*.java</include>
 					</includes>
+					<excludes>
+						<exclude>**/acceptance/**/*.java</exclude>
+						<exclude>**/*CucumberAcceptanceTest.java</exclude>
+					</excludes>
 					<systemPropertyVariables>
 						<allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
 					</systemPropertyVariables>
