@@ -4,7 +4,7 @@
 
 SONARQUBE_HOST="http://localhost:9001"
 SONARQUBE_USER="admin"
-SONARQUBE_PASSWORD="Admin123456!"
+SONARQUBE_PASSWORD="@MiguelAngel05"
 JENKINS_HOST="http://jenkins:8080"
 WEBHOOK_NAME="jenkins-webhook"
 WEBHOOK_URL="${JENKINS_HOST}/sonarqube-webhook/"

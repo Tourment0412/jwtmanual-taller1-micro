@@ -4,8 +4,19 @@
 # Uso: ./show-allure-reports.sh [build_number]
 
 BUILD_NUMBER=${1:-"1"}
-PORT=8084
+PORT=9090
 LOCAL_REPORTS_DIR="/tmp/allure-reports-build-$BUILD_NUMBER"
+
+# Detectar automáticamente si usar docker o podman
+if command -v podman &> /dev/null && podman ps &> /dev/null; then
+    DOCKER_CMD="podman"
+elif command -v docker &> /dev/null && docker ps &> /dev/null; then
+    DOCKER_CMD="docker"
+else
+    echo "❌ Error: Ni Docker ni Podman están disponibles o ejecutándose"
+    exit 1
+fi
+echo "🐳 Usando: $DOCKER_CMD"
 
 echo "🎯 Mostrando reportes de Allure del build #$BUILD_NUMBER"
 echo ""
@@ -32,7 +43,7 @@ if [ ! -f "$LOCAL_REPORTS_DIR/e2e-reports/index.html" ]; then
     # Copiar reportes E2E
     echo "🎯 Copiando reportes E2E..."
     mkdir -p "$LOCAL_REPORTS_DIR/e2e-reports"
-    if ! podman cp jenkins:/var/jenkins_home/workspace/jwtmanual-pipeline/automation-tests/target/site/allure-maven-plugin/. "$LOCAL_REPORTS_DIR/e2e-reports/"; then
+    if ! $DOCKER_CMD cp jenkins:/var/jenkins_home/workspace/jwtmanual-pipeline/automation-tests/target/site/allure-maven-plugin/. "$LOCAL_REPORTS_DIR/e2e-reports/"; then
         echo "❌ Error: No se pudieron copiar los reportes E2E del build #$BUILD_NUMBER"
         echo "💡 Asegúrate de que:"
         echo "   - El build #$BUILD_NUMBER exista"
@@ -42,10 +53,10 @@ if [ ! -f "$LOCAL_REPORTS_DIR/e2e-reports/index.html" ]; then
     fi
     
     # Copiar reportes de cobertura si existen
-    if podman exec jenkins test -d /var/jenkins_home/workspace/jwtmanual-pipeline/service/target/site/jacoco/; then
+    if $DOCKER_CMD exec jenkins test -d /var/jenkins_home/workspace/jwtmanual-pipeline/service/target/site/jacoco/; then
         echo "📈 Copiando reportes de cobertura..."
         mkdir -p "$LOCAL_REPORTS_DIR/coverage-reports"
-        podman cp jenkins:/var/jenkins_home/workspace/jwtmanual-pipeline/service/target/site/jacoco/. "$LOCAL_REPORTS_DIR/coverage-reports/" 2>/dev/null || echo "⚠️ Error copiando reportes de cobertura"
+        $DOCKER_CMD cp jenkins:/var/jenkins_home/workspace/jwtmanual-pipeline/service/target/site/jacoco/. "$LOCAL_REPORTS_DIR/coverage-reports/" 2>/dev/null || echo "⚠️ Error copiando reportes de cobertura"
     fi
     
     echo "✅ Reportes copiados exitosamente"
