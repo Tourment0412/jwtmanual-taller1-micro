@@ -84,12 +84,6 @@
 			<version>7.16.1</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>io.cucumber</groupId>
-			<artifactId>cucumber-spring</artifactId>
-			<version>7.16.1</version>
-			<scope>test</scope>
-		</dependency>
 		<!-- JUnit Platform Suite annotations (@Suite, @SelectClasspathResource, etc.) -->
 		<dependency>
 			<groupId>org.junit.platform</groupId>
