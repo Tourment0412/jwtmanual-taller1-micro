@@ -16,6 +16,12 @@ public record HealthCheckDTO(
         @Schema(description = "Estado general: UP, DOWN, OUT_OF_SERVICE, UNKNOWN", example = "UP")
         String status,
         
+        @Schema(description = "Versión del servicio", example = "1.0.0")
+        String version,
+        
+        @Schema(description = "Tiempo al aire en segundos", example = "3600")
+        Long uptime,
+        
         @Schema(description = "Lista de verificaciones de salud individuales")
         List<HealthCheck> checks
 ) {

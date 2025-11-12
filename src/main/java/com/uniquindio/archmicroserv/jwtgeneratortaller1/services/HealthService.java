@@ -1,10 +1,12 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.services;
 
 import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.HealthCheckDTO;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +19,11 @@ import java.util.Map;
 @Service
 public class HealthService {
 
+    private static final Instant START_TIME = Instant.now();
     private final Map<String, HealthIndicator> healthIndicators;
+    
+    @Value("${info.app.version:1.0.0}")
+    private String version;
 
     public HealthService(DatabaseHealthIndicator databaseHealthIndicator,
                         ApplicationHealthIndicator applicationHealthIndicator,
@@ -26,6 +32,10 @@ public class HealthService {
         this.healthIndicators.put("database", databaseHealthIndicator);
         this.healthIndicators.put("application", applicationHealthIndicator);
         this.healthIndicators.put("rabbitmq", rabbitMQHealthIndicator);
+    }
+    
+    private long getUptimeSeconds() {
+        return Instant.now().getEpochSecond() - START_TIME.getEpochSecond();
     }
 
     /**
@@ -51,7 +61,7 @@ public class HealthService {
         }
 
         String overallStatus = allUp ? "UP" : "DOWN";
-        return new HealthCheckDTO(overallStatus, checks);
+        return new HealthCheckDTO(overallStatus, version, getUptimeSeconds(), checks);
     }
 
     /**
@@ -66,7 +76,7 @@ public class HealthService {
         
         // Crear un check de Readiness según el formato especificado
         Map<String, Object> data = new HashMap<>();
-        data.put("from", dbHealth.getDetails().get("from"));
+        data.put("from", START_TIME.toString());
         data.put("status", "READY");
         
         checks.add(new HealthCheckDTO.HealthCheck(
@@ -77,7 +87,7 @@ public class HealthService {
 
         boolean ready = "UP".equals(dbHealth.getStatus().getCode());
         String overallStatus = ready ? "UP" : "DOWN";
-        return new HealthCheckDTO(overallStatus, checks);
+        return new HealthCheckDTO(overallStatus, version, getUptimeSeconds(), checks);
     }
 
     /**
@@ -92,7 +102,7 @@ public class HealthService {
         
         // Crear un check de Liveness según el formato especificado
         Map<String, Object> data = new HashMap<>();
-        data.put("from", appHealth.getDetails().get("from"));
+        data.put("from", START_TIME.toString());
         data.put("status", "ALIVE");
         
         checks.add(new HealthCheckDTO.HealthCheck(
@@ -102,6 +112,6 @@ public class HealthService {
         ));
 
         String overallStatus = appHealth.getStatus().getCode();
-        return new HealthCheckDTO(overallStatus, checks);
+        return new HealthCheckDTO(overallStatus, version, getUptimeSeconds(), checks);
     }
 }
