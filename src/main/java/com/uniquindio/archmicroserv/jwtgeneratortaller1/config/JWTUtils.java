@@ -1,23 +1,24 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.config;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.enums.Rol;
-import jakarta.annotation.PostConstruct;
-
-import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.enums.Rol;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 
 @Component
 public class JWTUtils {
@@ -116,6 +117,13 @@ public class JWTUtils {
      */
     public String getRol(String token) throws JwtException {
         return (String) getClaims(token).get("rol");
+    }
+
+    /**
+     * Extrae el usuario del token
+     */
+    public String getUsuario(String token) throws JwtException {
+        return (String) getClaims(token).get("usuario");
     }
 
 

@@ -110,6 +110,11 @@ public class PublicController {
             return ResponseEntity
                     .status(HttpStatus.CREATED) // 201
                     .body(new MessageDTO<>(false, "Usuario registrado exitosamente"));
+        } catch (com.uniquindio.archmicroserv.jwtgeneratortaller1.exceptions.UsuarioYaExisteException e) {
+            // Usuario ya existe -> 409
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(new MessageDTO<>(true, "El usuario ya existe en el sistema"));
         } catch (DataIntegrityViolationException e) {
             // Violaciones de unicidad u otras integridades -> 409
             return ResponseEntity

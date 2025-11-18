@@ -39,7 +39,7 @@ class UsuarioControllerTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(usuarioController).build();
-        actualizarRequest = new ActualizarUsuarioRequestDTO("newemail@test.com", "newpassword");
+        actualizarRequest = new ActualizarUsuarioRequestDTO("newemail@test.com", "newpassword", null);
     }
 
     @Test

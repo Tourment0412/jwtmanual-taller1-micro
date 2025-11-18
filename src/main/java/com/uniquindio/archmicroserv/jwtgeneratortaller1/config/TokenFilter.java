@@ -83,7 +83,9 @@ public class TokenFilter extends OncePerRequestFilter {
                             HttpServletResponse.SC_UNAUTHORIZED, response);
                     return;
                 }
-                error = verificarValidezTokenCliente(response, token);
+                // Extraer usuario del path para validar que solo acceda a sus propios datos
+                String usuarioPath = extraerUsuarioDelPath(requestURI);
+                error = verificarValidezTokenCliente(response, token, usuarioPath);
             } 
             // Otras rutas (públicas)
             else {
@@ -141,7 +143,7 @@ public class TokenFilter extends OncePerRequestFilter {
         }
     }
 
-    private boolean verificarValidezTokenCliente(HttpServletResponse response, String token)
+    private boolean verificarValidezTokenCliente(HttpServletResponse response, String token, String usuarioPath)
             throws IOException {
 
         try {
@@ -159,12 +161,31 @@ public class TokenFilter extends OncePerRequestFilter {
                 return true;
             }
             
+            String rolToken = jwtUtils.getRol(token);
             boolean validoRol = jwtUtils.verificarRol(token, Rol.CLIENTE);
+            
+            // Si es ADMIN, permitir acceso a cualquier usuario
+            if (Rol.ADMIN.getNombre().equals(rolToken)) {
+                return false;
+            }
+            
+            // Si es CLIENTE, verificar que solo acceda a sus propios datos
             if (!validoRol) {
                 crearRespuestaError("El rol del token no es válido para esta operación",
                         HttpServletResponse.SC_FORBIDDEN, response);
                 return true;
             }
+            
+            // Validar que el usuario del token coincida con el usuario del path
+            if (usuarioPath != null && !usuarioPath.isEmpty()) {
+                String usuarioToken = jwtUtils.getUsuario(token);
+                if (usuarioToken == null || !usuarioToken.trim().equals(usuarioPath.trim())) {
+                    crearRespuestaError("No tiene permisos para acceder a los datos de otro usuario",
+                            HttpServletResponse.SC_FORBIDDEN, response);
+                    return true;
+                }
+            }
+            
             return false;
         } catch (JwtException e) {
             crearRespuestaError("El token es inválido o malformado",
@@ -175,6 +196,21 @@ public class TokenFilter extends OncePerRequestFilter {
                     HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response);
             return true;
         }
+    }
+    
+    /**
+     * Extrae el nombre de usuario del path de la URI
+     * Ejemplo: /v1/usuarios/testuser -> testuser
+     */
+    private String extraerUsuarioDelPath(String requestURI) {
+        if (requestURI == null || !requestURI.startsWith("/v1/usuarios/")) {
+            return null;
+        }
+        String[] partes = requestURI.split("/");
+        if (partes.length >= 4) {
+            return partes[3]; // /v1/usuarios/{usuario}
+        }
+        return null;
     }
 
     private String getToken(HttpServletRequest req) {
@@ -217,7 +253,8 @@ public class TokenFilter extends OncePerRequestFilter {
      * Identifica si una ruta requiere autenticación de cliente/usuario
      */
     private boolean esRutaUsuario(String requestURI, String method) {
-        return requestURI.startsWith("/v1/usuarios/") && "PATCH".equals(method) && 
-               !requestURI.endsWith("/contrasena"); // PATCH /v1/usuarios/{usuario} (actualizar usuario)
+        return (requestURI.startsWith("/v1/usuarios/") && "PATCH".equals(method) && 
+               !requestURI.endsWith("/contrasena")) || // PATCH /v1/usuarios/{usuario} (actualizar usuario)
+               (requestURI.startsWith("/v1/usuarios/") && "GET".equals(method)); // GET /v1/usuarios/{usuario} (obtener usuario)
     }
 }

@@ -16,7 +16,7 @@ echo "✅ SonarQube está disponible!"
 
 # Cambiar la contraseña por defecto de admin
 echo "🔐 Cambiando contraseña de admin..."
-curl -u admin:admin -X POST "http://localhost:9001/api/users/change_password?login=admin&previousPassword=admin&password=admin123" || echo "⚠️ La contraseña ya fue cambiada o no se pudo cambiar"
+curl -u admin:admin -X POST "http://localhost:9001/api/users/change_password?login=admin&previousPassword=admin&password=@MiguelAngel05" || echo "⚠️ La contraseña ya fue cambiada o no se pudo cambiar"
 
 # Generar token de acceso
 echo "🔑 Generando token de acceso..."
@@ -39,4 +39,4 @@ echo ""
 echo "✅ Inicialización de SonarQube completada"
 echo "🌐 Accede a SonarQube en: http://localhost:9001"
 echo "👤 Usuario: admin"
-echo "🔑 Contraseña: admin123"
+echo "🔑 Contraseña: @MiguelAngel05"

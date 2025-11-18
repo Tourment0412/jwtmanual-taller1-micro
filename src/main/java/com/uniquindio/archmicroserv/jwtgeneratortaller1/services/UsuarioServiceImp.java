@@ -1,25 +1,35 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.services;
 
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.JWTUtils;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.Constants;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.*;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.exceptions.UsuarioNotFoundException;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.messaging.EventoPublisher;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.CodigoValidacion;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.Usuario;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.enums.TipoAccion;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.repositories.UsuarioRepo;
-import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.Constants;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.config.JWTUtils;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.CambioClaveDTO;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.EventoDominio;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.LoginRequest;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.TokenDTO;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.exceptions.UsuarioNotFoundException;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.exceptions.UsuarioYaExisteException;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.messaging.EventoPublisher;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.CodigoValidacion;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.Usuario;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.model.enums.TipoAccion;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.repositories.UsuarioRepo;
+
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -43,7 +53,7 @@ public class UsuarioServiceImp {
                 .build();
         try {
             if (usuarioRepo.findById(datosUsuario.getUsuario()).isPresent()) {
-                throw new Exception("El usuario ya existe");
+                throw new UsuarioYaExisteException("El usuario ya existe");
             }
             log.debug("Usuario creado, guardando en base de datos");
             usuarioRepo.save(usuario);
@@ -118,14 +128,26 @@ public class UsuarioServiceImp {
         }
         Usuario usuario = usuarioObtenido.get();
         
-        // Verificar si el correo ya existe en otro usuario
-        Optional<Usuario> usuarioConMismoCorreo = usuarioRepo.findByCorreo(datosUsuario.getCorreo());
-        if (usuarioConMismoCorreo.isPresent() && !usuarioConMismoCorreo.get().getUsuario().equals(datosUsuario.getUsuario())) {
-            throw new Exception("El correo electrónico ya está en uso por otro usuario");
+        // Actualizar correo solo si se proporciona
+        if (datosUsuario.getCorreo() != null && !datosUsuario.getCorreo().isBlank()) {
+            // Verificar si el correo ya existe en otro usuario
+            Optional<Usuario> usuarioConMismoCorreo = usuarioRepo.findByCorreo(datosUsuario.getCorreo());
+            if (usuarioConMismoCorreo.isPresent() && !usuarioConMismoCorreo.get().getUsuario().equals(datosUsuario.getUsuario())) {
+                throw new Exception("El correo electrónico ya está en uso por otro usuario");
+            }
+            usuario.setCorreo(datosUsuario.getCorreo());
         }
         
-        usuario.setCorreo(datosUsuario.getCorreo());
-        usuario.setClave(datosUsuario.getClave());
+        // Actualizar clave solo si se proporciona
+        if (datosUsuario.getClave() != null && !datosUsuario.getClave().isBlank()) {
+            usuario.setClave(datosUsuario.getClave());
+        }
+        
+        // Actualizar número de teléfono solo si se proporciona
+        if (datosUsuario.getNumeroTelefono() != null && !datosUsuario.getNumeroTelefono().isBlank()) {
+            usuario.setNumeroTelefono(datosUsuario.getNumeroTelefono());
+        }
+        
         usuarioRepo.save(usuario);
     }
 
@@ -238,6 +260,17 @@ public class UsuarioServiceImp {
             throw new Exception("Esa pagina no existe");
         }
         return listaUsuarios;
+    }
+
+    public Usuario obtenerUsuario(String usuario) throws UsuarioNotFoundException {
+        log.info("Obteniendo usuario: {}", usuario);
+        Optional<Usuario> usuarioEncontrado = usuarioRepo.findById(usuario);
+        if (usuarioEncontrado.isEmpty()) {
+            log.warn("Usuario no encontrado: {}", usuario);
+            throw new UsuarioNotFoundException(Constants.MSG_USUARIO_NO_EXISTENTE);
+        }
+        log.info("Usuario encontrado exitosamente: {}", usuario);
+        return usuarioEncontrado.get();
     }
 
     public boolean existeUsuario(@Valid DatosUsuario request) {
