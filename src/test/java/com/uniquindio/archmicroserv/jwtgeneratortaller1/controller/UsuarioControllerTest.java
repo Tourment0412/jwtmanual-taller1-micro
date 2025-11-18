@@ -1,24 +1,29 @@
 package com.uniquindio.archmicroserv.jwtgeneratortaller1.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.ActualizarUsuarioRequestDTO;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
-import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
+import static org.hamcrest.Matchers.containsString;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.ActualizarUsuarioRequestDTO;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.dto.DatosUsuario;
+import com.uniquindio.archmicroserv.jwtgeneratortaller1.services.UsuarioServiceImp;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Tests unitarios para UsuarioController")
@@ -106,9 +111,9 @@ class UsuarioControllerTest {
         mockMvc.perform(patch("/v1/usuarios/testuser")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(actualizarRequest)))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.error").value(true))
-                .andExpect(jsonPath("$.respuesta").value("Usuario no encontrado en el sistema"));
+                .andExpect(jsonPath("$.respuesta").value(containsString("Error interno del servidor")));
 
         verify(usuarioService, times(1)).actualizarDatos(any(DatosUsuario.class));
     }

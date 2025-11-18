@@ -18,21 +18,39 @@ echo "✅ SonarQube está disponible!"
 echo "🔐 Cambiando contraseña de admin..."
 curl -u admin:admin -X POST "http://localhost:9001/api/users/change_password?login=admin&previousPassword=admin&password=@MiguelAngel05" || echo "⚠️ La contraseña ya fue cambiada o no se pudo cambiar"
 
-# Generar token de acceso
-echo "🔑 Generando token de acceso..."
-TOKEN_RESPONSE=$(curl -u admin:admin123 -X POST "http://localhost:9001/api/user_tokens/generate?name=jenkins-token" 2>/dev/null)
+# Esperar un momento para que el cambio de contraseña se aplique
+sleep 2
 
-if echo "$TOKEN_RESPONSE" | grep -q "token"; then
+# Generar token de acceso (usando la contraseña actualizada)
+echo "🔑 Generando token de acceso..."
+TOKEN_RESPONSE=$(curl -s -u "admin:@MiguelAngel05" -X POST "http://localhost:9001/api/user_tokens/generate" -d "name=jenkins-token" -d "login=admin" 2>/dev/null)
+
+if echo "$TOKEN_RESPONSE" | grep -q '"token"'; then
     TOKEN=$(echo "$TOKEN_RESPONSE" | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
     echo "✅ Token generado exitosamente"
     echo "📋 Token de acceso: $TOKEN"
     echo ""
+    
+    # Guardar token en archivo
+    TOKEN_FILE="/tmp/sonarqube-token.txt"
+    echo "$TOKEN" > "$TOKEN_FILE"
+    echo "💾 Token guardado en: $TOKEN_FILE"
+    echo ""
     echo "ℹ️ Usa este token en Jenkins para la integración con SonarQube"
     echo "ℹ️ O actualiza el archivo 00-master-setup.groovy con este token"
 else
-    echo "⚠️ No se pudo generar el token. Es posible que ya exista."
-    echo "ℹ️ Puedes generar un token manualmente desde:"
-    echo "   http://localhost:9001/admin/users"
+    echo "⚠️ No se pudo generar el token."
+    echo ""
+    echo "Respuesta de SonarQube:"
+    echo "$TOKEN_RESPONSE" | python3 -m json.tool 2>/dev/null || echo "$TOKEN_RESPONSE"
+    echo ""
+    echo "ℹ️ Posibles causas:"
+    echo "   - El token 'jenkins-token' ya existe (revócalo primero)"
+    echo "   - Problema de autenticación"
+    echo "   - SonarQube no está completamente inicializado"
+    echo ""
+    echo "💡 Puedes generar un token manualmente desde:"
+    echo "   http://localhost:9001/account/security"
 fi
 
 echo ""
